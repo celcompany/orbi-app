@@ -1,0 +1,24 @@
+{
+  "name": "Orbi App — Agenda & Assistente Celi",
+  "short_name": "Orbi",
+  "description": "Sua agenda no piloto automático pelo WhatsApp.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF8F6",
+  "theme_color": "#18181b",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-orbi.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-orbi.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,1904 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Orbi ✨ | Assistente & Agenda Inteligente</title>
+
+  <!-- Configuração PWA para iPhone & Android (Tela Cheia Nativa) -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#FAF8F6">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Orbi">
+  <link rel="apple-touch-icon" href="/icon-orbi.png">
+  <link rel="icon" type="image/png" href="/icon-orbi.png">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #f3effb;
+      color: #18181b;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .app-bg {
+      background:
+        radial-gradient(circle at 90% 4%, rgba(253, 213, 195, 0.75) 0%, rgba(253, 213, 195, 0) 45%),
+        radial-gradient(circle at 10% 12%, rgba(226, 208, 255, 0.75) 0%, rgba(226, 208, 255, 0) 50%),
+        #FAF8F6;
+    }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .progress-ring__circle {
+      transition: stroke-dashoffset 0.5s ease-in-out;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+    }
+
+    /* Animações Vivas da Mascote Orbi */
+    @keyframes orbiFloat {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-6px) rotate(2deg); }
+    }
+    @keyframes orbiBounce {
+      0%, 100% { transform: scale(1); }
+      40% { transform: scale(1.14) rotate(-5deg); }
+      70% { transform: scale(0.95) rotate(4deg); }
+    }
+    @keyframes orbiShake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px) rotate(-4deg); }
+      75% { transform: translateX(5px) rotate(4deg); }
+    }
+
+    .orbi-alive {
+      animation: orbiFloat 3.4s ease-in-out infinite;
+      cursor: pointer;
+      user-select: none;
+    }
+    .orbi-jump {
+      animation: orbiBounce 0.55s ease-in-out !important;
+    }
+    .orbi-shake {
+      animation: orbiShake 0.4s ease-in-out 2 !important;
+    }
+  </style>
+</head>
+<body class="flex justify-center min-h-screen">
+
+  <div class="w-full max-w-md app-bg min-h-screen flex flex-col relative shadow-2xl overflow-hidden">
+
+    <!-- ================= TELA DE LOGIN / CADASTRO MULTI-USUÁRIO ================= -->
+    <div id="auth-screen" class="fixed inset-0 z-50 app-bg flex flex-col justify-between p-6 overflow-y-auto">
+      <div class="pt-4 space-y-5 max-w-md mx-auto w-full">
+        
+        <!-- Topo de Marca -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <img src="/icon-orbi.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/10691/10691802.png'" alt="Orbi" class="w-10 h-10 rounded-2xl object-cover shadow-md border border-violet-300/50">
+            <div>
+              <h1 class="text-base font-extrabold text-zinc-900 tracking-tight">Orbi App</h1>
+              <p class="text-[11px] font-medium text-zinc-500">Agenda Inteligente & Assistente Celi</p>
+            </div>
+          </div>
+          <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 flex items-center gap-1">
+            <i data-lucide="shield-check" class="w-3 h-3"></i> RLS 256-bit
+          </span>
+        </div>
+
+        <!-- Card Interativo da Mascote Orbi no Login -->
+        <div onclick="interagirOrbiAuth()" class="bg-[#1C1C21] text-white p-4 rounded-[28px] shadow-xl flex items-center gap-4 relative overflow-hidden cursor-pointer border border-violet-500/20">
+          <div class="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-violet-500/25 blur-xl pointer-events-none"></div>
+          <img id="img-orbi-auth" src="/mascote-orbi.png" onerror="this.src='/icon-orbi.png'" alt="Mascote Orbi" class="w-16 h-16 rounded-2xl object-cover shrink-0 orbi-alive shadow-lg border border-violet-400/30">
+          <div class="space-y-1">
+            <div class="flex items-center gap-1.5">
+              <span class="text-[10px] font-extrabold uppercase tracking-wider text-violet-300 bg-violet-500/20 px-2 py-0.5 rounded-full">Orbi • Sua Ajudante</span>
+              <span class="text-[10px] text-zinc-400">Toque em mim ✨</span>
+            </div>
+            <p id="fala-orbi-auth" class="text-xs font-semibold text-zinc-100 leading-relaxed">
+              Oi! Eu sou a Orbi 💜 Crie sua conta ou faça login para eu colocar sua agenda no piloto automático!
+            </p>
+          </div>
+        </div>
+
+        <!-- Abas Login vs Cadastro -->
+        <div class="bg-white/80 p-1 rounded-full border border-zinc-200/80 flex text-xs font-bold shadow-sm">
+          <button onclick="alternarAbaAuth('login')" id="tab-btn-login" class="flex-1 py-2.5 rounded-full bg-zinc-900 text-white transition">
+            Entrar na Conta
+          </button>
+          <button onclick="alternarAbaAuth('cadastro')" id="tab-btn-cadastro" class="flex-1 py-2.5 rounded-full text-zinc-600 transition">
+            Criar Nova Conta
+          </button>
+        </div>
+
+        <div id="auth-feedback" class="hidden p-3.5 rounded-2xl text-xs font-semibold"></div>
+
+        <!-- FORMULÁRIO DE LOGIN -->
+        <div id="form-login" class="space-y-3.5">
+          <div>
+            <label class="text-xs font-bold text-zinc-700 block mb-1">Seu E-mail</label>
+            <input id="login-email" type="email" placeholder="seuemail@gmail.com" class="w-full bg-white border border-zinc-200 rounded-2xl px-4 py-3 text-xs text-zinc-900 focus:outline-none focus:border-violet-500 shadow-sm">
+          </div>
+          <div>
+            <label class="text-xs font-bold text-zinc-700 block mb-1">Senha de Acesso</label>
+            <input id="login-senha" type="password" placeholder="••••••••" class="w-full bg-white border border-zinc-200 rounded-2xl px-4 py-3 text-xs text-zinc-900 focus:outline-none focus:border-violet-500 shadow-sm">
+          </div>
+          <button onclick="fazerLoginReal()" id="btn-submit-login" class="w-full py-3.5 bg-zinc-900 hover:bg-zinc-800 text-white font-bold rounded-full text-xs shadow-lg transition flex items-center justify-center gap-2">
+            <span>Entrar no Orbi App</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- FORMULÁRIO DE CADASTRO (PARA NOVAS PROFISSIONAIS) -->
+        <div id="form-cadastro" class="space-y-3 hidden">
+          <div>
+            <label class="text-xs font-bold text-zinc-700 block mb-1">Seu Nome ou Nome do Espaço</label>
+            <input id="cad-nome" type="text" placeholder="Ex: Larissa Mendes" class="w-full bg-white border border-zinc-200 rounded-2xl px-4 py-2.5 text-xs text-zinc-900 focus:outline-none focus:border-violet-500">
+          </div>
+          <div>
+            <label class="text-xs font-bold text-zinc-700 block mb-1">Seu WhatsApp (Com DDD)</label>
+            <input id="cad-whats" type="tel" placeholder="Ex: 11999999999" class="w-full bg-white border border-zinc-200 rounded-2xl px-4 py-2.5 text-xs text-zinc-900 focus:outline-none focus:border-violet-500">
+          </div>
+          <div>
+            <label class="text-xs font-bold text-zinc-700 block mb-1">Seu E-mail (Mesmo da sua Agenda)</label>
+            <input id="cad-email" type="email" placeholder="seuemail@gmail.com" class="w-full bg-white border border-zinc-200 rounded-2xl px-4 py-2.5 text-xs text-zinc-900 focus:outline-none focus:border-violet-500">
+          </div>
+          <div>
+            <label class="text-xs font-bold text-zinc-700 block mb-1">Criar Senha Segura</label>
+            <input id="cad-senha" type="password" placeholder="Mínimo 6 caracteres" class="w-full bg-white border border-zinc-200 rounded-2xl px-4 py-2.5 text-xs text-zinc-900 focus:outline-none focus:border-violet-500">
+          </div>
+          <button onclick="fazerCadastroReal()" id="btn-submit-cadastro" class="w-full py-3.5 bg-violet-600 hover:bg-violet-500 text-white font-bold rounded-full text-xs shadow-lg transition">
+            Criar Minha Conta & Gerar Código Orbi
+          </button>
+        </div>
+      </div>
+
+      <p class="text-[11px] text-center text-zinc-400 pt-4">
+        🔒 Conta individual blindada por criptografia Row-Level Security (RLS).
+      </p>
+    </div>
+
+    <!-- ================= BARRA DE TOPO DO APP ================= -->
+    <header class="px-6 pt-6 pb-2 flex items-center justify-between z-20">
+      <div class="flex items-center gap-3">
+        <div class="relative">
+          <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-violet-500 to-amber-300 p-0.5 shadow-sm">
+            <div id="avatar-iniciais" class="w-full h-full rounded-full bg-zinc-900 flex items-center justify-center text-white font-bold text-sm">
+              O
+            </div>
+          </div>
+          <span class="w-3 h-3 rounded-full bg-emerald-500 border-2 border-[#FAF8F6] absolute bottom-0 right-0" title="Online"></span>
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <p class="text-xs font-medium text-zinc-500">Olá 👋</p>
+            <span id="status-sync" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">● Online</span>
+          </div>
+          <h1 id="header-nome-usuario" class="text-sm font-extrabold text-zinc-900">Profissional</h1>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button onclick="abrirModalNovo()" title="Novo Agendamento" class="w-10 h-10 rounded-full bg-zinc-900 text-white flex items-center justify-center shadow-md hover:bg-zinc-800 transition">
+          <i data-lucide="plus" class="w-5 h-5"></i>
+        </button>
+        <button onclick="carregarAgendamentosSupabase(false)" title="Sincronizar Agora" class="w-10 h-10 rounded-full bg-white/90 border border-zinc-200/80 text-zinc-700 flex items-center justify-center shadow-sm hover:bg-white transition">
+          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- ================= BARRA INTERATIVA DA MASCOTE ORBI (EM TODAS AS ABAS) ================= -->
+    <div class="px-6 pt-1 pb-2 z-10">
+      <div onclick="clicarMascoteOrbi()" class="bg-white/95 border border-violet-200/90 rounded-[24px] p-3 shadow-sm flex items-center gap-3.5 cursor-pointer hover:border-violet-400 transition relative overflow-hidden">
+        <img id="img-orbi-main" src="/mascote-orbi.png" onerror="this.src='/icon-orbi.png'" alt="Orbi" class="w-13 h-13 w-12 h-12 rounded-2xl object-cover shrink-0 orbi-alive shadow-sm">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-extrabold uppercase tracking-wider text-violet-700">Orbi • Assistente Viva</span>
+            <span class="text-[10px] font-semibold text-zinc-400">Toque para dica ✨</span>
+          </div>
+          <p id="fala-orbi-main" class="text-xs font-semibold text-zinc-800 leading-snug mt-0.5">
+            Bem-vinda de volta! Estou cuidando dos seus horários e do seu caixa 💜
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= ÁREA PRINCIPAL ================= -->
+    <main class="flex-1 overflow-y-auto no-scrollbar px-6 pt-2 pb-32">
+
+      <!-- ABA 1: HOJE -->
+      <section id="tab-hoje" class="space-y-5">
+        <div class="flex items-end justify-between gap-2">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-wider text-violet-600">Painel de Controle</p>
+            <h2 class="text-2xl font-extrabold tracking-tight text-zinc-900">
+              Seus Atendimentos ✨
+            </h2>
+          </div>
+          <select id="select-data-filtro" onchange="mudarFiltroData(this.value)" class="bg-white border border-zinc-200/90 rounded-full px-3 py-1.5 text-xs font-bold text-zinc-800 shadow-sm focus:outline-none">
+            <option value="todas">📅 Todas as Datas</option>
+          </select>
+        </div>
+
+        <!-- Card Escuro de Progresso -->
+        <div class="bg-[#1C1C21] text-white rounded-[28px] p-5 shadow-xl relative overflow-hidden">
+          <div class="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-violet-500/20 blur-2xl pointer-events-none"></div>
+          
+          <div class="flex justify-between items-center mb-3">
+            <span class="text-xs font-semibold text-zinc-300">Progresso da Agenda</span>
+            <button onclick="abrirModalWhatsappCeli()" class="text-[11px] font-medium text-emerald-400 bg-emerald-500/15 px-2.5 py-0.5 rounded-full border border-emerald-500/20 hover:bg-emerald-500/25 transition">
+              ● Celi no WhatsApp
+            </button>
+          </div>
+
+          <div class="flex items-center justify-between gap-4">
+            <div class="relative w-24 h-24 flex items-center justify-center shrink-0">
+              <svg class="w-24 h-24" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="40" stroke="#32323A" stroke-width="10" fill="transparent"/>
+                <circle id="circle-progress" class="progress-ring__circle" cx="50" cy="50" r="40" stroke="#bef264" stroke-width="10" stroke-linecap="round" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="251.2"/>
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span id="txt-percentual" class="text-lg font-extrabold text-white">0%</span>
+                <span class="text-[9px] text-zinc-400 uppercase">Concluído</span>
+              </div>
+            </div>
+
+            <div class="w-px h-16 bg-zinc-800"></div>
+
+            <div class="flex-1 space-y-2 text-xs">
+              <div class="flex items-center justify-between">
+                <span class="text-zinc-400 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-violet-400"></span> Na Agenda
+                </span>
+                <span id="stat-total" class="font-bold text-white">0</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-zinc-400 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-lime-300"></span> Concluídos
+                </span>
+                <span id="stat-concluidos" class="font-bold text-lime-300">0</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-zinc-400 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-amber-300"></span> Pendentes
+                </span>
+                <span id="stat-pendentes" class="font-bold text-white">0</span>
+              </div>
+              <div class="pt-1 border-t border-zinc-800 flex items-center justify-between">
+                <span class="text-zinc-400">Previsão Caixa</span>
+                <span id="stat-previsto-topo" class="font-bold text-emerald-400">R$ 0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filtros Rápidos -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-base font-bold text-zinc-900">Compromissos</h3>
+            <button onclick="switchTab('agenda')" class="text-xs font-semibold text-violet-700 hover:underline">Ver Linha do Tempo</button>
+          </div>
+
+          <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+            <button onclick="filtrarHoje('todos')" id="pill-todos" class="px-4 py-2 rounded-full text-xs font-bold bg-zinc-900 text-white shadow-sm flex items-center gap-1.5 shrink-0 transition">
+              <span>Todos</span>
+              <span id="badge-pill-todos" class="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px]">0</span>
+            </button>
+            <button onclick="filtrarHoje('pendentes')" id="pill-pendentes" class="px-4 py-2 rounded-full text-xs font-semibold bg-white text-zinc-700 border border-zinc-200/80 flex items-center gap-1.5 shrink-0 transition">
+              <span>Pendentes</span>
+              <span id="badge-pill-pendentes" class="px-1.5 py-0.2 rounded-full bg-lime-200 text-zinc-900 font-bold text-[10px]">0</span>
+            </button>
+            <button onclick="filtrarHoje('concluidos')" id="pill-concluidos" class="px-4 py-2 rounded-full text-xs font-semibold bg-white text-zinc-700 border border-zinc-200/80 flex items-center gap-1.5 shrink-0 transition">
+              <span>Concluídos</span>
+              <span id="badge-pill-concluidos" class="px-1.5 py-0.2 rounded-full bg-zinc-100 text-zinc-700 text-[10px]">0</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Lista de Cards -->
+        <div id="lista-hoje" class="space-y-3.5"></div>
+      </section>
+
+      <!-- ABA 2: AGENDA & TAREFAS -->
+      <section id="tab-agenda" class="space-y-5 hidden">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-zinc-400">Sincronizado com Google & iPhone</p>
+            <h2 class="text-2xl font-extrabold text-zinc-900">Programação</h2>
+          </div>
+          <div class="bg-white p-1 rounded-full border border-zinc-200 flex text-xs font-semibold">
+            <button id="subtab-horarios" onclick="alternarVisaoAgenda('horarios')" class="px-3 py-1.5 rounded-full bg-zinc-900 text-white transition">Horários</button>
+            <button id="subtab-tarefas" onclick="alternarVisaoAgenda('tarefas')" class="px-3 py-1.5 rounded-full text-zinc-600 transition">Tarefas</button>
+          </div>
+        </div>
+
+        <div id="strip-datas-agenda" class="flex gap-2 overflow-x-auto no-scrollbar py-1"></div>
+
+        <div id="visao-horarios" class="space-y-4 pt-1">
+          <div id="timeline-container" class="space-y-4"></div>
+        </div>
+
+        <div id="visao-tarefas" class="space-y-4 pt-1 hidden">
+          <div class="flex gap-2">
+            <input id="input-tarefa" type="text" placeholder="Adicionar lembrete ou tarefa..." class="flex-1 bg-white border border-zinc-200 rounded-2xl px-4 py-3 text-xs text-zinc-900 placeholder-zinc-400 focus:outline-none focus:border-violet-500 shadow-sm">
+            <button onclick="adicionarTarefa()" class="bg-zinc-900 text-white px-4 rounded-2xl text-xs font-bold shadow-sm">Criar</button>
+          </div>
+          <div id="lista-tarefas" class="space-y-2.5"></div>
+        </div>
+      </section>
+
+      <!-- ABA 3: CAIXA & FINANÇAS DA PROFISSIONAL -->
+      <section id="tab-caixa" class="space-y-5 hidden">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-zinc-400">Seus Recebimentos</p>
+            <h2 class="text-2xl font-extrabold text-zinc-900">Caixa & Finanças</h2>
+          </div>
+          <select id="select-mes-caixa" onchange="atualizarTudo()" class="bg-white border border-zinc-200 rounded-full px-3 py-1.5 text-xs font-bold text-zinc-800 shadow-sm">
+            <option value="todos">Todo o Período</option>
+            <option value="01">Janeiro</option>
+            <option value="02">Fevereiro</option>
+            <option value="03">Março</option>
+            <option value="04">Abril</option>
+            <option value="05">Maio</option>
+            <option value="06">Junho</option>
+            <option value="07">Julho</option>
+            <option value="08">Agosto</option>
+            <option value="09">Setembro</option>
+            <option value="10">Outubro</option>
+            <option value="11">Novembro</option>
+            <option value="12">Dezembro</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3.5">
+          <div class="bg-gradient-to-br from-emerald-500 to-teal-600 text-white p-4 rounded-[26px] shadow-lg shadow-emerald-500/15">
+            <div class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center mb-2.5">
+              <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+            </div>
+            <p class="text-xs font-medium text-emerald-50">Recebido (Pago)</p>
+            <p id="caixa-recebido" class="text-xl font-extrabold mt-0.5">R$ 0,00</p>
+          </div>
+
+          <div class="bg-gradient-to-br from-violet-600 to-indigo-600 text-white p-4 rounded-[26px] shadow-lg shadow-violet-500/15">
+            <div class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center mb-2.5">
+              <i data-lucide="calendar-clock" class="w-4 h-4"></i>
+            </div>
+            <p class="text-xs font-medium text-violet-100">Previsão Total</p>
+            <p id="caixa-previsto" class="text-xl font-extrabold mt-0.5">R$ 0,00</p>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-[24px] p-4 border border-zinc-200/80 shadow-sm space-y-3">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-zinc-700">Falta Receber (Pendente)</span>
+            <span id="caixa-falta" class="font-extrabold text-amber-600">R$ 0,00</span>
+          </div>
+          <div class="w-full h-2.5 bg-zinc-100 rounded-full overflow-hidden">
+            <div id="barra-progresso-caixa" class="h-full bg-emerald-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+          </div>
+          <div class="grid grid-cols-3 gap-2 pt-1 text-center">
+            <div class="bg-zinc-50 rounded-xl p-2 border border-zinc-100">
+              <p class="text-[10px] text-zinc-400 font-semibold">Pix</p>
+              <p id="soma-pix" class="text-xs font-extrabold text-zinc-800 mt-0.5">R$ 0</p>
+            </div>
+            <div class="bg-zinc-50 rounded-xl p-2 border border-zinc-100">
+              <p class="text-[10px] text-zinc-400 font-semibold">Cartão</p>
+              <p id="soma-cartao" class="text-xs font-extrabold text-zinc-800 mt-0.5">R$ 0</p>
+            </div>
+            <div class="bg-zinc-50 rounded-xl p-2 border border-zinc-100">
+              <p class="text-[10px] text-zinc-400 font-semibold">Dinheiro</p>
+              <p id="soma-dinheiro" class="text-xs font-extrabold text-zinc-800 mt-0.5">R$ 0</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="card-alerta-valor" class="bg-[#FEF3C7] border border-amber-300/80 p-4 rounded-[24px] space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-amber-900">⚠️ Lembrete da Orbi</span>
+            <span id="qtd-sem-valor" class="text-[11px] font-bold bg-amber-400/40 text-amber-950 px-2 py-0.5 rounded-full">0 pendente(s)</span>
+          </div>
+          <p class="text-xs text-amber-900/80 leading-relaxed">
+            Toque sobre o valor de qualquer atendimento abaixo para definir o preço, escolher <strong>Pix, Cartão ou Dinheiro</strong> e dar baixa no recebimento.
+          </p>
+        </div>
+
+        <div class="space-y-3">
+          <h3 class="text-sm font-bold text-zinc-900">Lançamentos da Agenda</h3>
+          <div id="lista-transacoes" class="bg-white rounded-[26px] p-3 border border-zinc-200/70 divide-y divide-zinc-100 shadow-sm"></div>
+        </div>
+      </section>
+
+      <!-- ABA 4: CELI & CONTA -->
+      <section id="tab-config" class="space-y-5 hidden">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-zinc-400">Conexões & Assinatura</p>
+            <h2 class="text-2xl font-extrabold text-zinc-900">Celi & Conta</h2>
+          </div>
+          <button onclick="fazerLogout()" class="px-3.5 py-1.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-xs font-bold flex items-center gap-1.5 hover:bg-rose-100 transition">
+            <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Sair da Conta
+          </button>
+        </div>
+
+        <div class="bg-white rounded-[26px] p-5 border border-zinc-200/80 shadow-sm space-y-3.5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3.5">
+              <img src="/mascote-orbi.png" onerror="this.src='/icon-orbi.png'" class="w-12 h-12 rounded-2xl object-cover shadow-md border border-emerald-200">
+              <div>
+                <h3 class="text-sm font-extrabold text-zinc-900">Celi no WhatsApp</h3>
+                <p id="txt-whats-conectado" class="text-xs text-zinc-500">Vinculado via Código Rápido</p>
+              </div>
+            </div>
+            <span id="badge-status-whats" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">Ativa</span>
+          </div>
+          <p class="text-xs text-zinc-500 leading-relaxed">
+            Envie áudios ou textos para a Celi (`+55 11 92743-0042`) agendar clientes. Sem precisar de câmera ou QR Code: vincule seu número direto pelo celular com seu código exclusivo.
+          </p>
+          <button onclick="abrirModalWhatsappCeli()" class="w-full py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-2xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm">
+            <i data-lucide="key-round" class="w-3.5 h-3.5"></i>
+            <span>Ver Meu Código / Ativar no WhatsApp</span>
+          </button>
+        </div>
+
+        <div class="bg-white rounded-[26px] p-5 border border-zinc-200/80 shadow-sm space-y-3.5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3.5">
+              <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm">
+                <i data-lucide="calendar-check-2" class="w-6 h-6"></i>
+              </div>
+              <div>
+                <h3 class="text-sm font-extrabold text-zinc-900">Google & Apple Calendar</h3>
+                <p id="txt-calendar-email" class="text-xs text-zinc-500">Sincronizado</p>
+              </div>
+            </div>
+            <span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700">Sincronizado</span>
+          </div>
+          <p class="text-xs text-zinc-500 leading-relaxed">
+            Seus agendamentos aparecem automaticamente na agenda do seu iPhone e Google Calendar.
+          </p>
+          <button onclick="abrirModalCalendarios()" class="w-full py-2.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 rounded-2xl text-xs font-bold transition flex items-center justify-center gap-2">
+            <i data-lucide="settings-2" class="w-3.5 h-3.5"></i>
+            <span>Configurar E-mail da Agenda</span>
+          </button>
+        </div>
+
+        <div class="bg-[#EDE9FE] border border-violet-200 rounded-[26px] p-5 space-y-3.5 shadow-sm">
+          <div class="flex justify-between items-start">
+            <div>
+              <span class="text-[10px] font-extrabold uppercase tracking-wider text-violet-700">Sua Assinatura</span>
+              <h3 class="text-base font-extrabold text-zinc-900">Plano Orbi Pro Mensal</h3>
+              <p class="text-xs text-zinc-600 mt-0.5">Vencimento: <strong id="txt-vencimento-assinatura">Ativo</strong> • R$ 49,90/mês</p>
+            </div>
+            <span id="badge-status-assinatura" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500 text-white shadow-sm">Em dia ✓</span>
+          </div>
+
+          <div class="bg-white/80 rounded-2xl p-3 border border-violet-200/70 flex items-center justify-between text-xs">
+            <span class="text-zinc-600 font-medium flex items-center gap-1.5">
+              <i data-lucide="lock" class="w-3.5 h-3.5 text-violet-600"></i> Mercado Pago Oficial
+            </span>
+            <span class="font-bold text-zinc-900">Pix ou Cartão Recorrente</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="abrirModalAssinatura()" class="py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-2xl text-xs font-bold transition shadow-sm">
+              Pagar / Renovar
+            </button>
+            <button onclick="togglePaywall(true)" class="py-2.5 bg-white hover:bg-zinc-50 text-zinc-800 border border-violet-300 rounded-2xl text-xs font-bold transition">
+              Ver Tela de Renovação
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-[24px] p-4 border border-zinc-200/70 space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                <i data-lucide="shield-check" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <p class="text-xs font-bold text-zinc-900">Isolamento Multi-Usuário Ativo</p>
+                <p class="text-[11px] text-zinc-500">Seus dados estão protegidos no seu ID único.</p>
+              </div>
+            </div>
+            <button onclick="abrirModalSegurancaRLS()" class="px-3 py-1.5 rounded-xl bg-violet-50 text-violet-700 text-[11px] font-bold hover:bg-violet-100 transition">
+              Detalhes
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ================= BARRA DE NAVEGAÇÃO INFERIOR ================= -->
+    <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 w-[90%] max-w-[380px] bg-white/95 backdrop-blur-md border border-zinc-200/90 rounded-full p-1.5 shadow-xl flex justify-between items-center z-30">
+      <button onclick="switchTab('hoje')" id="nav-hoje" class="nav-btn flex-1 py-2.5 rounded-full flex flex-col items-center justify-center gap-0.5 bg-zinc-900 text-white transition">
+        <i data-lucide="home" class="w-4 h-4"></i>
+        <span class="text-[10px] font-bold">Hoje</span>
+      </button>
+      <button onclick="switchTab('agenda')" id="nav-agenda" class="nav-btn flex-1 py-2.5 rounded-full flex flex-col items-center justify-center gap-0.5 text-zinc-500 hover:text-zinc-900 transition">
+        <i data-lucide="calendar-days" class="w-4 h-4"></i>
+        <span class="text-[10px] font-semibold">Agenda</span>
+      </button>
+      <button onclick="switchTab('caixa')" id="nav-caixa" class="nav-btn flex-1 py-2.5 rounded-full flex flex-col items-center justify-center gap-0.5 text-zinc-500 hover:text-zinc-900 transition">
+        <i data-lucide="wallet" class="w-4 h-4"></i>
+        <span class="text-[10px] font-semibold">Caixa</span>
+      </button>
+      <button onclick="switchTab('config')" id="nav-config" class="nav-btn flex-1 py-2.5 rounded-full flex flex-col items-center justify-center gap-0.5 text-zinc-500 hover:text-zinc-900 transition">
+        <i data-lucide="user-check" class="w-4 h-4"></i>
+        <span class="text-[10px] font-semibold">Celi & Conta</span>
+      </button>
+    </nav>
+
+    <!-- ================= MODAL 1: VINCULAR CELI NO WHATSAPP ================= -->
+    <div id="modal-whatsapp-celi" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-4">
+      <div class="bg-white w-full max-w-sm rounded-[32px] p-6 space-y-4 shadow-2xl">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-600">Conexão Direta pelo Celular</span>
+          <button onclick="fecharModalWhatsappCeli()" class="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-600">✕</button>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <img src="/mascote-orbi.png" onerror="this.src='/icon-orbi.png'" class="w-12 h-12 rounded-2xl object-cover shadow-sm">
+          <div>
+            <h3 class="text-base font-extrabold text-zinc-900">Vincular seu WhatsApp</h3>
+            <p class="text-[11px] text-zinc-500">Número oficial da Celi: +55 11 92743-0042</p>
+          </div>
+        </div>
+
+        <p class="text-xs text-zinc-500 leading-relaxed">
+          Sem precisar escanear QR Code! Toque no botão verde abaixo para enviar seu <strong>Código Exclusivo</strong> para o WhatsApp da Celi e vincular sua conta na hora:
+        </p>
+
+        <div>
+          <label class="text-[11px] font-bold text-zinc-700 block mb-1">Seu WhatsApp Profissional (Com DDD)</label>
+          <input id="input-whats-profissional" type="tel" placeholder="Ex: 5511999999999" class="w-full bg-zinc-50 border border-zinc-200 rounded-2xl px-3.5 py-2.5 text-xs font-bold text-zinc-900 focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <div class="bg-emerald-50/80 border-2 border-dashed border-emerald-300 rounded-2xl p-4 text-center space-y-2">
+          <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Seu Código Exclusivo Orbi</p>
+          <div class="flex items-center justify-center gap-2">
+            <span id="txt-codigo-orbi" class="text-2xl font-extrabold tracking-widest text-zinc-900">ORBI-0000</span>
+            <button onclick="copiarCodigoOrbi()" class="px-2.5 py-1 rounded-lg bg-white border border-emerald-200 text-[11px] font-bold text-emerald-700 shadow-sm">
+              Copiar
+            </button>
+          </div>
+          <p class="text-[11px] text-emerald-800">Vinculado exclusivamente ao seu login</p>
+        </div>
+
+        <button onclick="enviarCodigoNoWhatsappCeli()" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-full text-xs shadow-lg transition flex items-center justify-center gap-2">
+          <span>💬 Ativar Celi no WhatsApp Agora</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ================= MODAL 2: CONEXÃO GOOGLE & APPLE CALENDAR ================= -->
+    <div id="modal-calendarios" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-4">
+      <div class="bg-white w-full max-w-sm rounded-[32px] p-6 space-y-4 shadow-2xl">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-extrabold uppercase tracking-wider text-blue-600">Sincronização de Agendas</span>
+          <button onclick="fecharModalCalendarios()" class="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-600">✕</button>
+        </div>
+        <h3 class="text-base font-extrabold text-zinc-900">Google & Apple Calendar</h3>
+
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs font-bold text-zinc-700 block mb-1">E-mail do seu Google Calendar</label>
+            <input id="input-email-calendar" type="email" placeholder="seuemail@gmail.com" class="w-full bg-zinc-50 border border-zinc-200 rounded-2xl px-4 py-3 text-xs font-bold text-zinc-900">
+          </div>
+
+          <div class="bg-blue-50/70 border border-blue-200 rounded-2xl p-3.5 space-y-1.5">
+            <p class="text-xs font-bold text-blue-900">🍎 Como ver no Calendário do iPhone:</p>
+            <p class="text-[11px] text-blue-800 leading-relaxed">
+              No seu iPhone, vá em <strong>Ajustes → Apps → Calendário → Contas</strong> e certifique-se de que este mesmo Gmail está com a chavinha "Calendários" ativada.
+            </p>
+          </div>
+        </div>
+
+        <button onclick="salvarEmailCalendario()" class="w-full py-3.5 bg-zinc-900 text-white font-bold rounded-full text-xs shadow-lg">
+          Salvar E-mail da Agenda
+        </button>
+      </div>
+    </div>
+
+    <!-- ================= MODAL 3: CHECKOUT DE ASSINATURA (MERCADO PAGO OFICIAL) ================= -->
+    <div id="modal-assinatura" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-4">
+      <div class="bg-white w-full max-w-sm rounded-[32px] p-6 space-y-4 shadow-2xl">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-extrabold uppercase tracking-wider text-violet-600">Checkout Oficial Mercado Pago</span>
+          <button onclick="fecharModalAssinatura()" class="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-600">✕</button>
+        </div>
+
+        <div class="flex justify-between items-center bg-zinc-50 p-3.5 rounded-2xl border border-zinc-200">
+          <div class="flex items-center gap-2.5">
+            <img src="/mascote-orbi.png" onerror="this.src='/icon-orbi.png'" class="w-10 h-10 rounded-xl object-cover">
+            <div>
+              <p class="text-xs font-extrabold text-zinc-900">Assinatura Orbi Pro</p>
+              <p class="text-[11px] text-zinc-500">WhatsApp IA + Agenda + Caixa</p>
+            </div>
+          </div>
+          <span class="text-base font-extrabold text-violet-600">R$ 49,90</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 bg-zinc-100 p-1 rounded-2xl text-xs font-bold">
+          <button onclick="alternarMetodoAssinatura('pix')" id="btn-ass-pix" class="py-2 rounded-xl bg-white text-zinc-900 shadow-sm">💠 Pix (30 dias)</button>
+          <button onclick="alternarMetodoAssinatura('cartao')" id="btn-ass-cartao" class="py-2 rounded-xl text-zinc-600">💳 Assinatura Cartão</button>
+        </div>
+
+        <!-- ABA PIX MENSAL -->
+        <div id="area-ass-pix" class="space-y-3 text-center">
+          <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 text-xs text-emerald-950 leading-relaxed">
+            💠 <strong>Acesso por 30 dias via Pix:</strong> Pague pelo QR Code ou Pix Copia e Cola no ambiente seguro do Mercado Pago com liberação automática.
+          </div>
+          <button onclick="pagarPixMercadoPago()" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-full text-xs shadow-lg transition flex items-center justify-center gap-2">
+            <span>Pagar R$ 49,90 via Pix (Mercado Pago)</span>
+            <i data-lucide="external-link" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- ABA CARTÃO RECORRENTE -->
+        <div id="area-ass-cartao" class="space-y-3 text-center hidden">
+          <div class="bg-violet-50 border border-violet-200 rounded-2xl p-3.5 text-xs text-violet-950 leading-relaxed">
+            💳 <strong>Piloto Automático no Cartão:</strong> Ative sua assinatura mensal no Mercado Pago e renove automaticamente todo mês sem se preocupar.
+          </div>
+          <button onclick="assinarCartaoMercadoPago()" class="w-full py-3.5 bg-zinc-900 hover:bg-zinc-800 text-white font-bold rounded-full text-xs shadow-lg transition flex items-center justify-center gap-2">
+            <span>Ativar Assinatura no Cartão (R$ 49,90/mês)</span>
+            <i data-lucide="external-link" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= MODAL 4: EDIÇÃO FINANCEIRA DO ATENDIMENTO ================= -->
+    <div id="modal-financeiro" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-4">
+      <div class="bg-white w-full max-w-sm rounded-[32px] p-6 space-y-4 shadow-2xl">
+        <div class="flex items-center justify-between">
+          <div>
+            <span class="text-[10px] font-extrabold uppercase tracking-wider text-violet-600">Controle de Caixa</span>
+            <h3 id="fin-titulo-cliente" class="text-base font-extrabold text-zinc-900">Cliente</h3>
+          </div>
+          <button onclick="fecharModalFinanceiro()" class="w-9 h-9 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-600">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <div>
+          <label class="text-xs font-bold text-zinc-700 block mb-1">Valor do Serviço (R$)</label>
+          <input id="fin-input-valor" type="number" step="0.01" placeholder="Ex: 280.00" class="w-full bg-zinc-50 border border-zinc-200 rounded-2xl px-4 py-3 text-base font-extrabold text-zinc-900 focus:outline-none focus:border-violet-500">
+        </div>
+
+        <div>
+          <label class="text-xs font-bold text-zinc-700 block mb-1.5">Forma de Pagamento</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" onclick="selecionarMetodo('Pix')" id="btn-metodo-Pix" class="py-2.5 rounded-2xl text-xs font-bold border border-zinc-200 bg-zinc-50 text-zinc-700">💠 Pix</button>
+            <button type="button" onclick="selecionarMetodo('Cartão')" id="btn-metodo-Cartão" class="py-2.5 rounded-2xl text-xs font-bold border border-zinc-200 bg-zinc-50 text-zinc-700">💳 Cartão</button>
+            <button type="button" onclick="selecionarMetodo('Dinheiro')" id="btn-metodo-Dinheiro" class="py-2.5 rounded-2xl text-xs font-bold border border-zinc-200 bg-zinc-50 text-zinc-700">💵 Dinheiro</button>
+          </div>
+        </div>
+
+        <div class="pt-1">
+          <label class="flex items-center justify-between bg-emerald-50/80 border border-emerald-200 rounded-2xl p-3.5 cursor-pointer">
+            <div>
+              <p class="text-xs font-bold text-emerald-950">Marcar como Pago & Concluído</p>
+              <p class="text-[11px] text-emerald-700">Soma imediatamente no seu Caixa Recebido</p>
+            </div>
+            <input id="fin-check-pago" type="checkbox" class="w-5 h-5 accent-emerald-600 rounded">
+          </label>
+        </div>
+
+        <button onclick="salvarFinanceiroSupabase()" id="btn-salvar-fin" class="w-full py-3.5 bg-zinc-900 hover:bg-zinc-800 text-white font-bold rounded-full text-xs shadow-lg transition">
+          Salvar no Caixa
+        </button>
+      </div>
+    </div>
+
+    <!-- ================= MODAL 5: EDITAR DETALHES DO AGENDAMENTO ================= -->
+    <div id="modal-editar-agendamento" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-4">
+      <div class="bg-white w-full max-w-sm rounded-[32px] p-6 space-y-3.5 shadow-2xl max-h-[92vh] overflow-y-auto">
+        <div class="flex items-center justify-between">
+          <div>
+            <span class="text-[10px] font-extrabold uppercase tracking-wider text-violet-600">Sincroniza com Google & iPhone</span>
+            <h3 class="text-base font-extrabold text-zinc-900">Editar Atendimento ✏️</h3>
+          </div>
+          <button onclick="fecharModalEditarAgendamento()" class="w-9 h-9 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-600">✕</button>
+        </div>
+
+        <div>
+          <label class="text-xs font-bold text-zinc-700 block mb-1">Nome da Cliente</label>
+          <input id="edit-cliente" type="text" placeholder="Digite o nome da cliente..." class="w-full bg-zinc-50 border border-zinc-200 rounded-2xl px-4 py-3 text-xs font-extrabold text-zinc-900 focus:outline-none focus:border-violet-500">
+        </div>
+
+        <div>
+          <label class="text-xs font-bold text-zinc-700 block mb-1">Serviço</label>
+          <input id="edit-servico" type="text" placeholder="Ex: Penteado & Maquiagem" class="w-full bg-zinc-50 border border-zinc-200 rounded-2xl px-4 py-3 text-xs font-semibold text-zinc-900 focus:outline-none focus:border-violet-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="text-xs font-bold text-zinc-700 block mb-1">Data</label>
+            <input id="edit-data" type="date" class="w-full bg-zinc-50 border border-zinc-200 rounded-2xl px-3.5 py-2.5 text-xs font-bold text-zinc-900">
+          </div>
+          <div>
+            <label class="text-xs font-bold text-zinc-700 block mb-1">Horário</label>
+            <input id="edit-horario" type="time" class="w-full bg-zinc-50 border border-zinc-200 rounded-2xl px-3.5 py-2.5 text-xs font-bold text-zinc-900">
+          </div>
+        </div>
+
+        <div>
+          <label class="text-xs font-bold text-zinc-700 block mb-1">Local / Endereço</label>
+          <input id="edit-endereco" type="text" placeholder="Endereço do atendimento" class="w-full bg-zinc-50 border border-zinc-200 rounded-2xl px-4 py-2.5 text-xs text-zinc-900 focus:outline-none focus:border-violet-500">
+        </div>
+
+        <div class="flex gap-2 pt-2">
+          <button onclick="fecharModalEditarAgendamento()" class="flex-1 py-3 rounded-full bg-zinc-100 text-xs font-bold text-zinc-600">Cancelar</button>
+          <button onclick="salvarEdicaoAgendamento()" id="btn-salvar-edicao" class="flex-1 py-3 rounded-full bg-zinc-900 hover:bg-zinc-800 text-xs font-bold text-white shadow-lg">
+            Salvar & Sincronizar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= MODAL 6: CONFIRMAR EXCLUSÃO ================= -->
+    <div id="modal-excluir" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+      <div class="bg-white w-full max-w-xs rounded-[28px] p-6 text-center space-y-4 shadow-2xl">
+        <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
+          <i data-lucide="trash-2" class="w-6 h-6"></i>
+        </div>
+        <h3 class="text-base font-extrabold text-zinc-900">Cancelar Agendamento?</h3>
+        <p class="text-xs text-zinc-500 leading-relaxed">
+          Isso apagará o compromisso do aplicativo, do seu <strong>Google Calendar</strong> e do <strong>iPhone</strong>.
+        </p>
+        <div class="flex gap-2 pt-1">
+          <button onclick="fecharModalExcluir()" class="flex-1 py-3 rounded-full bg-zinc-100 text-xs font-bold text-zinc-700">Voltar</button>
+          <button onclick="confirmarExclusao()" id="btn-confirmar-excluir" class="flex-1 py-3 rounded-full bg-rose-600 text-xs font-bold text-white shadow-md">Sim, Apagar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= MODAL 7: NOVO AGENDAMENTO ================= -->
+    <div id="modal-novo" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center">
+      <div class="app-bg w-full max-w-md rounded-t-[36px] sm:rounded-[36px] p-6 space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto">
+        <div class="flex items-center justify-between">
+          <button onclick="fecharModalNovo()" class="w-10 h-10 rounded-full bg-white border border-zinc-200 flex items-center justify-center text-zinc-700">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+          <h3 class="text-sm font-bold text-zinc-900">Novo Agendamento</h3>
+          <button onclick="salvarNovoCompromisso()" class="w-10 h-10 rounded-full bg-zinc-900 text-white flex items-center justify-center">
+            <i data-lucide="check" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <div class="space-y-3 pt-1">
+          <div>
+            <label class="text-xs font-bold text-zinc-700 block mb-1">Nome da Cliente</label>
+            <input id="novo-cliente" type="text" placeholder="Ex: Juliana Martins" class="w-full bg-white border border-zinc-200/90 rounded-2xl px-4 py-3 text-xs text-zinc-900 focus:outline-none focus:border-violet-500">
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-zinc-700 block mb-1">Serviço</label>
+            <input id="novo-servico" type="text" placeholder="Ex: Penteado & Maquiagem" class="w-full bg-white border border-zinc-200/90 rounded-2xl px-4 py-3 text-xs text-zinc-900 focus:outline-none focus:border-violet-500">
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label class="text-xs font-bold text-zinc-700 block mb-1">Data</label>
+              <input id="novo-data" type="date" class="w-full bg-white border border-zinc-200/90 rounded-2xl px-3 py-3 text-xs text-zinc-900">
+            </div>
+            <div>
+              <label class="text-xs font-bold text-zinc-700 block mb-1">Horário</label>
+              <input id="novo-horario" type="time" value="14:00" class="w-full bg-white border border-zinc-200/90 rounded-2xl px-3 py-3 text-xs text-zinc-900">
+            </div>
+            <div>
+              <label class="text-xs font-bold text-zinc-700 block mb-1">Valor (R$)</label>
+              <input id="novo-valor" type="number" placeholder="250" class="w-full bg-white border border-zinc-200/90 rounded-2xl px-3 py-3 text-xs text-zinc-900">
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-zinc-700 block mb-1">Local / Endereço (Gera Rota Maps)</label>
+            <input id="novo-endereco" type="text" placeholder="Ex: Rua das Flores, 120" class="w-full bg-white border border-zinc-200/90 rounded-2xl px-4 py-3 text-xs text-zinc-900">
+          </div>
+        </div>
+
+        <button id="btn-salvar-novo" onclick="salvarNovoCompromisso()" class="w-full py-3.5 bg-zinc-900 hover:bg-zinc-800 text-white font-bold rounded-full text-xs shadow-lg transition mt-2">
+          Salvar na Agenda & Sincronizar
+        </button>
+      </div>
+    </div>
+
+    <!-- ================= MODAL 8: PAYWALL (ASSINATURA VENCIDA) ================= -->
+    <div id="modal-paywall" class="fixed inset-0 bg-zinc-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-6">
+      <div class="bg-white rounded-[32px] max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
+        <img src="/mascote-orbi.png" onerror="this.src='/icon-orbi.png'" class="w-20 h-20 rounded-3xl object-cover mx-auto shadow-lg orbi-alive">
+        <h3 class="text-lg font-extrabold text-zinc-900">Renove seu acesso ao Orbi ✨</h3>
+        <p class="text-xs text-zinc-500 leading-relaxed">Para a Celi continuar agendando seus horários pelo WhatsApp, escolha como prefere renovar:</p>
+        <div class="bg-zinc-50 p-4 rounded-2xl border border-zinc-200 text-left flex justify-between items-center">
+          <div>
+            <p class="text-xs font-bold text-zinc-900">Plano Orbi Pro</p>
+            <p class="text-[11px] text-zinc-500">WhatsApp IA + Agenda + Finanças</p>
+          </div>
+          <span class="text-sm font-extrabold text-violet-600">R$ 49,90</span>
+        </div>
+        <div class="space-y-2">
+          <button onclick="pagarPixMercadoPago()" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-full text-xs shadow-md">
+            💠 Pagar com Pix (+30 dias)
+          </button>
+          <button onclick="assinarCartaoMercadoPago()" class="w-full py-3.5 bg-zinc-900 hover:bg-zinc-800 text-white font-bold rounded-full text-xs shadow-lg">
+            💳 Assinar no Cartão (Automático)
+          </button>
+          <button onclick="togglePaywall(false)" class="w-full py-2 text-[11px] font-bold text-zinc-400 hover:text-zinc-600">
+            Fechar aviso
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= MODAL 9: PAINEL DE BLINDAGEM RLS ================= -->
+    <div id="modal-seguranca-rls" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-4">
+      <div class="bg-white w-full max-w-md rounded-[32px] p-6 space-y-4 shadow-2xl">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-600">Segurança Multi-Usuário (RLS)</span>
+          <button onclick="fecharModalSegurancaRLS()" class="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-600">✕</button>
+        </div>
+
+        <h3 class="text-base font-extrabold text-zinc-900">Dados Isolados da Sua Conta</h3>
+        <div class="bg-zinc-50 border border-zinc-200 rounded-2xl p-3.5 space-y-1.5 text-xs">
+          <div class="flex justify-between">
+            <span class="text-zinc-500">Seu ID Único (UUID):</span>
+            <span id="rls-user-id" class="font-mono font-bold text-zinc-800 text-[10px]">...</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-zinc-500">Seu Código Celi:</span>
+            <span id="rls-codigo-orbi" class="font-bold text-violet-700">ORBI-0000</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-zinc-500">Isolamento de Dados:</span>
+            <span class="font-bold text-emerald-600">Ativo (user_id = auth.uid())</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // ============================================================================
+    // CONFIGURAÇÃO OFICIAL DE PRODUÇÃO (SUPABASE + WHATSAPP CELI + MERCADO PAGO)
+    // ============================================================================
+    const SUPABASE_URL = "https://aaiwbrddckshuiuwziqw.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_hVZp48vBwDFVnw7mSjQi9g_O1w5DSgl";
+    
+    // Número oficial da assistente Celi no WhatsApp:
+    const NUMERO_CENTRAL_CELI = "5511927430042";
+
+    // Links oficiais do Mercado Pago:
+    const LINK_MP_ASSINATURA_CARTAO = "https://mpago.la/2oWzM4T";
+    const LINK_MP_PAGAMENTO_PIX = "https://link.mercadopago.com.br/assinaturaorbipro";
+
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let usuarioAuth = null;
+    let perfilAtual = null;
+    let filtroAtual = "todos";
+    let dataSelecionada = "todas";
+    let idEmEdicaoFinanceira = null;
+    let metodoSelecionadoModal = "Pix";
+    let idEmEdicaoAgendamento = null;
+    let idParaExcluir = null;
+    let indiceDicaOrbi = 0;
+
+    const estilosCores = {
+      pink:   { bg: "bg-[#FCE7F3]", border: "border-pink-200/80", badge: "bg-pink-500/15 text-pink-900" },
+      blue:   { bg: "bg-[#E0F2FE]", border: "border-sky-200/80",  badge: "bg-sky-500/15 text-sky-900" },
+      purple: { bg: "bg-[#EDE9FE]", border: "border-violet-200/80", badge: "bg-violet-500/15 text-violet-900" },
+      mint:   { bg: "bg-[#DCFCE7]", border: "border-emerald-200/80", badge: "bg-emerald-500/15 text-emerald-900" }
+    };
+
+    const paletaRotativa = ["pink", "blue", "purple"];
+    let agendamentos = [];
+    let tarefas = [];
+
+    // ============================================================================
+    // INTELIGÊNCIA & INTERATIVIDADE VIVA DA MASCOTE ORBI
+    // ============================================================================
+    function falarOrbi(texto, animacao = "jump") {
+      const elMain = document.getElementById("fala-orbi-main");
+      const imgMain = document.getElementById("img-orbi-main");
+      if (elMain) elMain.innerHTML = texto;
+      if (imgMain) {
+        imgMain.classList.remove("orbi-jump", "orbi-shake");
+        void imgMain.offsetWidth;
+        imgMain.classList.add(animacao === "shake" ? "orbi-shake" : "orbi-jump");
+        setTimeout(() => imgMain.classList.remove("orbi-jump", "orbi-shake"), 700);
+      }
+    }
+
+    function falarOrbiAuth(texto, animacao = "jump") {
+      const elAuth = document.getElementById("fala-orbi-auth");
+      const imgAuth = document.getElementById("img-orbi-auth");
+      if (elAuth) elAuth.innerHTML = texto;
+      if (imgAuth) {
+        imgAuth.classList.remove("orbi-jump", "orbi-shake");
+        void imgAuth.offsetWidth;
+        imgAuth.classList.add(animacao === "shake" ? "orbi-shake" : "orbi-jump");
+        setTimeout(() => imgAuth.classList.remove("orbi-jump", "orbi-shake"), 700);
+      }
+    }
+
+    function interagirOrbiAuth() {
+      const frasesAuth = [
+        "Você pode mandar áudios no WhatsApp e eu lanço tudo na sua agenda! 🎙️✨",
+        "Seus dados ficam 100% isolados e protegidos na sua conta individual 🔒💜",
+        "Sincronizo seus horários com a agenda do seu iPhone e Google Calendar! 📅"
+      ];
+      falarOrbiAuth(frasesAuth[indiceDicaOrbi % frasesAuth.length], "jump");
+      indiceDicaOrbi++;
+    }
+
+    function clicarMascoteOrbi() {
+      const nome = (perfilAtual?.nome || "Profissional").split(" ")[0];
+      const total = agendamentos.length;
+      const concluidos = agendamentos.filter(a => a.concluido).length;
+      const semPreco = agendamentos.filter(a => !a.valor || a.valor === 0).length;
+
+      const dicas = [
+        `Ei ${nome}! Lembre-se que você pode me mandar áudio no WhatsApp (+55 11 92743-0042) para agendar rapidinho! 🎙️💜`,
+        total === 0
+          ? `${nome}, sua agenda está limpinha! Toque no botão + lá em cima ou me chame no WhatsApp para criar seu primeiro horário ✨`
+          : `Você tem ${total} atendimento(s) registrado(s) e ${concluidos} já concluído(s)! Continue arrasando 🚀`,
+        semPreco > 0
+          ? `Psiu! Notei que você tem ${semPreco} atendimento(s) sem valor definido. Toque no botão amarelo "Definir Valor R$" para eu calcular seu lucro! 💰`
+          : `Seu controle financeiro está impecável! Todos os atendimentos já têm valor definido 🏆✨`
+      ];
+
+      falarOrbi(dicas[indiceDicaOrbi % dicas.length], "jump");
+      indiceDicaOrbi++;
+    }
+
+    function atualizarReacaoAutomaticaOrbi(pct, total, semValor) {
+      const nome = (perfilAtual?.nome || "Profissional").split(" ")[0];
+      if (total === 0) {
+        falarOrbi(`Oi, ${nome}! Toque no botão + acima ou mande um áudio no WhatsApp da Celi para começar sua agenda ✨`);
+      } else if (pct === 100) {
+        falarOrbi(`UAU, ${nome}! 🎉 100% dos atendimentos concluídos e pagos! Você arrasou demais!`);
+      } else if (semValor > 0) {
+        falarOrbi(`${nome}, você tem ${semValor} atendimento(s) esperando preço. Toque no botão amarelo para eu somar no seu caixa! 💰`);
+      } else if (pct >= 50) {
+        falarOrbi(`Ritmo incrível, ${nome}! Mais da metade da sua agenda já está concluída (${pct}%) 🚀💜`);
+      } else {
+        falarOrbi(`Estou cuidando de tudo por aqui, ${nome}! Você tem ${total} compromisso(s) na lista ✨`);
+      }
+    }
+
+    // ============================================================================
+    // AUTENTICAÇÃO MULTI-USUÁRIO REAL (SUPABASE AUTH + PROFILES + TAREFAS)
+    // ============================================================================
+    function mostrarFeedbackAuth(msg, erro = false) {
+      const box = document.getElementById("auth-feedback");
+      box.classList.remove("hidden", "bg-rose-100", "text-rose-800", "bg-emerald-100", "text-emerald-800");
+      box.classList.add(erro ? "bg-rose-100" : "bg-emerald-100", erro ? "text-rose-800" : "text-emerald-800");
+      box.innerHTML = msg;
+      if (erro) falarOrbiAuth("Ops! Confere esse dado pra mim? 🧐", "shake");
+    }
+
+    function alternarAbaAuth(aba) {
+      const btnLogin = document.getElementById("tab-btn-login");
+      const btnCad = document.getElementById("tab-btn-cadastro");
+      const formLogin = document.getElementById("form-login");
+      const formCad = document.getElementById("form-cadastro");
+      document.getElementById("auth-feedback").classList.add("hidden");
+
+      if (aba === "login") {
+        btnLogin.className = "flex-1 py-2.5 rounded-full bg-zinc-900 text-white transition";
+        btnCad.className = "flex-1 py-2.5 rounded-full text-zinc-600 transition";
+        formLogin.classList.remove("hidden");
+        formCad.classList.add("hidden");
+        falarOrbiAuth("Que bom te ver de volta! Digite seu e-mail e senha para entrar 💜");
+      } else {
+        btnCad.className = "flex-1 py-2.5 rounded-full bg-zinc-900 text-white transition";
+        btnLogin.className = "flex-1 py-2.5 rounded-full text-zinc-600 transition";
+        formCad.classList.remove("hidden");
+        formLogin.classList.add("hidden");
+        falarOrbiAuth("Vamos criar sua conta exclusiva! Já vou gerar seu código para ativar seu WhatsApp ✨");
+      }
+    }
+
+    async function fazerLoginReal() {
+      const email = document.getElementById("login-email").value.trim();
+      const password = document.getElementById("login-senha").value.trim();
+      if (!email || !password) return mostrarFeedbackAuth("Preencha seu e-mail e senha para entrar.", true);
+
+      const btn = document.getElementById("btn-submit-login");
+      btn.innerText = "Autenticando com segurança...";
+
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      btn.innerHTML = `<span>Entrar no Orbi App</span>`;
+
+      if (error) {
+        return mostrarFeedbackAuth("E-mail ou senha incorretos (" + error.message + ")", true);
+      }
+
+      await inicializarSessaoAutenticada(data.user);
+    }
+
+    async function fazerCadastroReal() {
+      const nome = document.getElementById("cad-nome").value.trim();
+      const whatsapp = document.getElementById("cad-whats").value.replace(/\D/g, "");
+      const email = document.getElementById("cad-email").value.trim();
+      const password = document.getElementById("cad-senha").value.trim();
+
+      if (!nome) return mostrarFeedbackAuth("Digite seu nome profissional.", true);
+      if (!email || password.length < 6) {
+        return mostrarFeedbackAuth("Informe um e-mail válido e uma senha de no mínimo 6 caracteres.", true);
+      }
+
+      const btn = document.getElementById("btn-submit-cadastro");
+      btn.innerText = "Criando sua conta blindada...";
+
+      const whatsappFormatado = whatsapp.startsWith("55") ? whatsapp : (whatsapp ? "55" + whatsapp : "");
+
+      const { data, error } = await supabaseClient.auth.signUp({
+        email,
+        password,
+        options: { data: { nome, whatsapp: whatsappFormatado } }
+      });
+
+      btn.innerText = "Criar Minha Conta & Gerar Código Orbi";
+
+      if (error) {
+        if (error.message.toLowerCase().includes("already registered")) {
+          const loginRes = await supabaseClient.auth.signInWithPassword({ email, password });
+          if (loginRes.data?.user) return await inicializarSessaoAutenticada(loginRes.data.user);
+        }
+        return mostrarFeedbackAuth("Não foi possível criar a conta: " + error.message, true);
+      }
+
+      if (data?.user) {
+        await inicializarSessaoAutenticada(data.user, true);
+      }
+    }
+
+    async function inicializarSessaoAutenticada(user, contaNova = false) {
+      usuarioAuth = user;
+      document.getElementById("auth-screen").classList.add("hidden");
+
+      // Carrega tarefas exclusivas deste usuário
+      const tarefasSalvas = localStorage.getItem(`orbi_tarefas_${user.id}`);
+      if (tarefasSalvas) {
+        tarefas = JSON.parse(tarefasSalvas);
+      } else {
+        tarefas = [
+          { id: 101, texto: "Vincular meu código exclusivo na Celi pelo WhatsApp", feita: false, tag: "WhatsApp" },
+          { id: 102, texto: "Conferir recebimentos de Pix da semana", feita: false, tag: "Caixa" }
+        ];
+      }
+
+      const { data: perfil } = await supabaseClient
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (perfil) {
+        perfilAtual = perfil;
+      } else {
+        const codigoGerado = "ORBI-" + Math.floor(1000 + Math.random() * 9000);
+        const vencimentoInicial = new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0];
+        const novoPerfil = {
+          id: user.id,
+          nome: user.user_metadata?.nome || "Profissional Orbi",
+          email: user.email,
+          whatsapp: user.user_metadata?.whatsapp || "",
+          codigo_orbi: codigoGerado,
+          google_calendar_id: user.email,
+          assinatura_status: "ativo",
+          assinatura_vencimento: vencimentoInicial
+        };
+        const { data: inserido } = await supabaseClient.from("profiles").upsert(novoPerfil).select().maybeSingle();
+        perfilAtual = inserido || novoPerfil;
+      }
+
+      const nomeExibicao = perfilAtual.nome || "Profissional Orbi";
+      document.getElementById("header-nome-usuario").innerText = nomeExibicao;
+      document.getElementById("avatar-iniciais").innerText = nomeExibicao.charAt(0).toUpperCase();
+      document.getElementById("txt-codigo-orbi").innerText = perfilAtual.codigo_orbi || "ORBI-4829";
+      document.getElementById("rls-codigo-orbi").innerText = perfilAtual.codigo_orbi || "ORBI-4829";
+      document.getElementById("rls-user-id").innerText = user.id;
+      document.getElementById("input-whats-profissional").value = perfilAtual.whatsapp || "";
+      document.getElementById("txt-whats-conectado").innerText = perfilAtual.whatsapp
+        ? `WhatsApp: +${perfilAtual.whatsapp} (${perfilAtual.codigo_orbi})`
+        : `Código: ${perfilAtual.codigo_orbi} (Toque para ativar)`;
+      document.getElementById("txt-calendar-email").innerText = perfilAtual.google_calendar_id || user.email;
+      document.getElementById("input-email-calendar").value = perfilAtual.google_calendar_id || user.email;
+
+      if (perfilAtual.assinatura_vencimento) {
+        document.getElementById("txt-vencimento-assinatura").innerText = formatarDataBR(perfilAtual.assinatura_vencimento);
+        const hojeISO = new Date().toISOString().split("T")[0];
+        if (perfilAtual.assinatura_vencimento < hojeISO || perfilAtual.assinatura_status === "vencido") {
+          document.getElementById("badge-status-assinatura").innerText = "Vencida ⚠️";
+          document.getElementById("badge-status-assinatura").className = "px-3 py-1 rounded-full text-xs font-bold bg-rose-600 text-white shadow-sm";
+          togglePaywall(true);
+        }
+      }
+
+      await carregarAgendamentosSupabase(true);
+
+      // Se acabou de criar a conta, já abre o modal para ativar o WhatsApp da Celi na hora
+      if (contaNova) {
+        abrirModalWhatsappCeli();
+      }
+    }
+
+    async function fazerLogout() {
+      await supabaseClient.auth.signOut();
+      usuarioAuth = null;
+      perfilAtual = null;
+      agendamentos = [];
+      document.getElementById("auth-screen").classList.remove("hidden");
+    }
+
+    function abrirModalSegurancaRLS() {
+      document.getElementById("modal-seguranca-rls").classList.remove("hidden");
+    }
+    function fecharModalSegurancaRLS() {
+      document.getElementById("modal-seguranca-rls").classList.add("hidden");
+    }
+
+    function abrirModalWhatsappCeli() {
+      document.getElementById("modal-whatsapp-celi").classList.remove("hidden");
+    }
+    function fecharModalWhatsappCeli() {
+      document.getElementById("modal-whatsapp-celi").classList.add("hidden");
+    }
+
+    function copiarCodigoOrbi() {
+      const cod = document.getElementById("txt-codigo-orbi").innerText;
+      navigator.clipboard.writeText(cod);
+      falarOrbi(`Código ${cod} copiado! Agora envie para a Celi no WhatsApp 💬✨`);
+    }
+
+    async function enviarCodigoNoWhatsappCeli() {
+      let foneProfissional = document.getElementById("input-whats-profissional").value.replace(/\D/g, "");
+      if (foneProfissional && !foneProfissional.startsWith("55")) {
+        foneProfissional = "55" + foneProfissional;
+      }
+      const cod = document.getElementById("txt-codigo-orbi").innerText;
+
+      if (usuarioAuth && foneProfissional) {
+        await supabaseClient.from("profiles").update({ whatsapp: foneProfissional }).eq("id", usuarioAuth.id);
+        document.getElementById("txt-whats-conectado").innerText = `WhatsApp: +${foneProfissional} (${cod})`;
+      }
+
+      const msg = `Olá Celi! Quero ativar minha agenda Orbi neste número. Meu código de vinculação é: *${cod}*`;
+      const urlWhats = `https://wa.me/${NUMERO_CENTRAL_CELI}?text=${encodeURIComponent(msg)}`;
+      window.open(urlWhats, "_blank");
+      fecharModalWhatsappCeli();
+    }
+
+    function abrirModalCalendarios() {
+      document.getElementById("modal-calendarios").classList.remove("hidden");
+    }
+    function fecharModalCalendarios() {
+      document.getElementById("modal-calendarios").classList.add("hidden");
+    }
+    async function salvarEmailCalendario() {
+      const email = document.getElementById("input-email-calendar").value.trim();
+      if (email) {
+        document.getElementById("txt-calendar-email").innerText = email;
+        if (usuarioAuth) {
+          await supabaseClient.from("profiles").update({ google_calendar_id: email }).eq("id", usuarioAuth.id);
+        }
+        falarOrbi(`Perfeito! Sincronização ajustada para a agenda ${email} 📅✨`);
+      }
+      fecharModalCalendarios();
+    }
+
+    // ============================================================================
+    // FUNÇÕES DE CHECKOUT MERCADO PAGO (ASSINATURA CARTÃO + PIX MENSAL)
+    // ============================================================================
+    function abrirModalAssinatura() {
+      document.getElementById("modal-assinatura").classList.remove("hidden");
+      lucide.createIcons();
+    }
+    function fecharModalAssinatura() {
+      document.getElementById("modal-assinatura").classList.add("hidden");
+    }
+    function alternarMetodoAssinatura(m) {
+      const btnPix = document.getElementById("btn-ass-pix");
+      const btnCartao = document.getElementById("btn-ass-cartao");
+      if (m === "pix") {
+        btnPix.className = "py-2 rounded-xl bg-white text-zinc-900 shadow-sm";
+        btnCartao.className = "py-2 rounded-xl text-zinc-600";
+        document.getElementById("area-ass-pix").classList.remove("hidden");
+        document.getElementById("area-ass-cartao").classList.add("hidden");
+      } else {
+        btnCartao.className = "py-2 rounded-xl bg-white text-zinc-900 shadow-sm";
+        btnPix.className = "py-2 rounded-xl text-zinc-600";
+        document.getElementById("area-ass-cartao").classList.remove("hidden");
+        document.getElementById("area-ass-pix").classList.add("hidden");
+      }
+    }
+    function assinarCartaoMercadoPago() {
+      window.open(LINK_MP_ASSINATURA_CARTAO, "_blank");
+    }
+    function pagarPixMercadoPago() {
+      window.open(LINK_MP_PAGAMENTO_PIX, "_blank");
+    }
+
+    function formatarDataBR(iso) {
+      if (!iso) return "Sem data";
+      const p = iso.split("-");
+      return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : iso;
+    }
+
+    function formatarDataCurta(iso) {
+      if (!iso) return "--/--";
+      const p = iso.split("-");
+      return p.length === 3 ? `${p[2]}/${p[1]}` : iso;
+    }
+
+    function mapearLinhaSupabase(row, index) {
+      const st = (row.status || "").toLowerCase();
+      const concluido = Boolean(row.concluido) || Boolean(row.pago) || st === "concluido" || st === "pago";
+      const valorNumerico = (row.valor !== null && row.valor !== undefined && row.valor !== "") ? Number(row.valor) : null;
+
+      return {
+        id: row.id,
+        data_agendamento: row.data_agendamento || new Date().toISOString().split("T")[0],
+        horario: (row.horario_inicio || "00:00").slice(0, 5),
+        cliente: row.cliente || "Cliente",
+        servico: row.servico || "Atendimento",
+        endereco: row.endereco || "",
+        valor: valorNumerico,
+        status: row.status || "Confirmado",
+        concluido: concluido,
+        forma_pagamento: row.forma_pagamento || "Pix",
+        cor: concluido ? "mint" : paletaRotativa[index % paletaRotativa.length]
+      };
+    }
+
+    // ============================================================================
+    // CARREGAMENTO ISOLADO POR USUÁRIO (MULTI-TENANT)
+    // ============================================================================
+    async function carregarAgendamentosSupabase(silencioso = false) {
+      if (!usuarioAuth) return;
+      const badge = document.getElementById("status-sync");
+      if (!silencioso && badge) {
+        badge.innerText = "Sincronizando...";
+        badge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700";
+      }
+
+      try {
+        // Filtra estritamente pelos agendamentos pertencentes ao user_id logado
+        const { data, error } = await supabaseClient
+          .from("agendamentos")
+          .select("*")
+          .eq("user_id", usuarioAuth.id)
+          .order("data_agendamento", { ascending: true })
+          .order("horario_inicio", { ascending: true });
+
+        if (error) throw error;
+        if (data) agendamentos = data.map((row, idx) => mapearLinhaSupabase(row, idx));
+
+        if (badge) {
+          badge.innerText = "● Online";
+          badge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700";
+        }
+      } catch (err) {
+        console.warn("Aviso ao consultar Supabase:", err.message);
+      }
+
+      popularFiltroDatas();
+      atualizarTudo();
+    }
+
+    function popularFiltroDatas() {
+      const select = document.getElementById("select-data-filtro");
+      const datasUnicas = [...new Set(agendamentos.map(a => a.data_agendamento))].sort();
+
+      let html = `<option value="todas">📅 Todas (${agendamentos.length})</option>`;
+      datasUnicas.forEach(dt => {
+        const qtd = agendamentos.filter(a => a.data_agendamento === dt).length;
+        html += `<option value="${dt}" ${dataSelecionada === dt ? 'selected' : ''}>${formatarDataBR(dt)} (${qtd})</option>`;
+      });
+      select.innerHTML = html;
+
+      const strip = document.getElementById("strip-datas-agenda");
+      strip.innerHTML = `
+        <button onclick="mudarFiltroData('todas')" class="px-4 py-2.5 rounded-2xl text-xs font-bold shrink-0 transition ${dataSelecionada === 'todas' ? 'bg-zinc-900 text-white shadow-md' : 'bg-white text-zinc-600 border border-zinc-200'}">
+          Todas as Datas
+        </button>
+      `;
+      datasUnicas.forEach(dt => {
+        const ativo = dataSelecionada === dt;
+        strip.innerHTML += `
+          <button onclick="mudarFiltroData('${dt}')" class="px-4 py-2.5 rounded-2xl text-xs font-bold shrink-0 transition ${ativo ? 'bg-zinc-900 text-white shadow-md' : 'bg-white text-zinc-700 border border-zinc-200'}">
+            ${formatarDataCurta(dt)}
+          </button>
+        `;
+      });
+    }
+
+    function mudarFiltroData(novaData) {
+      dataSelecionada = novaData;
+      popularFiltroDatas();
+      atualizarTudo();
+    }
+
+    function obterAgendamentosFiltradosPorData() {
+      if (dataSelecionada === "todas") return agendamentos;
+      return agendamentos.filter(a => a.data_agendamento === dataSelecionada);
+    }
+
+    function atualizarTudo() {
+      const listaBase = obterAgendamentosFiltradosPorData();
+      const total = listaBase.length;
+      const concluidos = listaBase.filter(a => a.concluido).length;
+      const pendentes = total - concluidos;
+      const pct = total > 0 ? Math.round((concluidos / total) * 100) : 0;
+
+      const offset = 251.2 - (251.2 * pct) / 100;
+      document.getElementById("circle-progress").style.strokeDashoffset = offset;
+      document.getElementById("txt-percentual").innerText = `${pct}%`;
+
+      document.getElementById("stat-total").innerText = total;
+      document.getElementById("stat-concluidos").innerText = concluidos;
+      document.getElementById("stat-pendentes").innerText = pendentes;
+
+      document.getElementById("badge-pill-todos").innerText = total;
+      document.getElementById("badge-pill-pendentes").innerText = pendentes;
+      document.getElementById("badge-pill-concluidos").innerText = concluidos;
+
+      const mesCaixa = document.getElementById("select-mes-caixa")?.value || "todos";
+      const listaCaixa = agendamentos.filter(a => {
+        if (mesCaixa === "todos") return true;
+        const m = (a.data_agendamento || "").split("-")[1];
+        return m === mesCaixa;
+      });
+
+      let somaPrevisto = 0, somaRecebido = 0, semValor = 0;
+      let somaPix = 0, somaCartao = 0, somaDinheiro = 0;
+
+      listaCaixa.forEach(a => {
+        const v = Number(a.valor) || 0;
+        somaPrevisto += v;
+        if (a.concluido) {
+          somaRecebido += v;
+          const met = (a.forma_pagamento || "Pix").toLowerCase();
+          if (met.includes("cart")) somaCartao += v;
+          else if (met.includes("dinh")) somaDinheiro += v;
+          else somaPix += v;
+        }
+        if (a.valor === null || a.valor === 0) semValor++;
+      });
+
+      const faltaReceber = Math.max(0, somaPrevisto - somaRecebido);
+      const pctCaixa = somaPrevisto > 0 ? Math.round((somaRecebido / somaPrevisto) * 100) : 0;
+
+      document.getElementById("stat-previsto-topo").innerText = `R$ ${somaPrevisto.toFixed(0)}`;
+      document.getElementById("caixa-recebido").innerText = `R$ ${somaRecebido.toFixed(2).replace('.', ',')}`;
+      document.getElementById("caixa-previsto").innerText = `R$ ${somaPrevisto.toFixed(2).replace('.', ',')}`;
+      document.getElementById("caixa-falta").innerText = `R$ ${faltaReceber.toFixed(2).replace('.', ',')}`;
+      document.getElementById("barra-progresso-caixa").style.width = `${pctCaixa}%`;
+
+      document.getElementById("soma-pix").innerText = `R$ ${somaPix.toFixed(0)}`;
+      document.getElementById("soma-cartao").innerText = `R$ ${somaCartao.toFixed(0)}`;
+      document.getElementById("soma-dinheiro").innerText = `R$ ${somaDinheiro.toFixed(0)}`;
+      document.getElementById("qtd-sem-valor").innerText = `${semValor} pendente(s)`;
+
+      atualizarReacaoAutomaticaOrbi(pct, total, semValor);
+      renderCardsHoje(listaBase);
+      renderTimeline(listaBase);
+      renderTransacoes(listaCaixa);
+      renderTarefas();
+      lucide.createIcons();
+    }
+
+    function renderCardsHoje(listaBase) {
+      const container = document.getElementById("lista-hoje");
+      container.innerHTML = "";
+
+      const listaFiltrada = listaBase.filter(item => {
+        if (filtroAtual === "pendentes") return !item.concluido;
+        if (filtroAtual === "concluidos") return item.concluido;
+        return true;
+      });
+
+      if (listaFiltrada.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white/85 border border-zinc-200/70 rounded-[28px] p-7 text-center space-y-2.5">
+            <img src="/mascote-orbi.png" onerror="this.src='/icon-orbi.png'" class="w-14 h-14 rounded-2xl mx-auto object-cover orbi-alive shadow-sm">
+            <p class="text-sm font-bold text-zinc-800">Sua lista está vazia por aqui!</p>
+            <p class="text-xs text-zinc-500">Toque no botão <strong>+</strong> no topo ou mande um áudio para a Celi no WhatsApp para criar seus agendamentos.</p>
+          </div>
+        `;
+        return;
+      }
+
+      listaFiltrada.forEach(item => {
+        const paleta = estilosCores[item.concluido ? 'mint' : item.cor] || estilosCores.pink;
+        const mostrarMapa = Boolean(item.endereco);
+        const linkMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.endereco || '')}`;
+        const temValor = item.valor !== null && item.valor > 0;
+        const nomeGenerico = item.cliente.toLowerCase().includes("whatsapp") || item.cliente.toLowerCase() === "cliente";
+
+        const card = document.createElement("div");
+        card.className = `${paleta.bg} ${paleta.border} border rounded-[28px] p-5 shadow-sm transition relative`;
+
+        card.innerHTML = `
+          <div class="flex justify-between items-start gap-2">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-zinc-900 text-white">
+                  📅 ${formatarDataCurta(item.data_agendamento)} • ${item.horario}
+                </span>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${paleta.badge}">
+                  ${item.concluido ? 'Pago ✓' : item.status}
+                </span>
+              </div>
+
+              <div onclick="abrirModalEditarAgendamento('${item.id}')" class="group cursor-pointer mt-2.5 inline-flex items-center gap-1.5 flex-wrap">
+                <h4 class="text-base font-extrabold text-zinc-900 group-hover:text-violet-700 transition">
+                  ${item.cliente}
+                </h4>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${nomeGenerico ? 'bg-amber-300/90 text-amber-950 animate-pulse' : 'bg-white/80 text-zinc-600'} flex items-center gap-1">
+                  ✏️ ${nomeGenerico ? 'Colocar Nome' : 'Editar'}
+                </span>
+              </div>
+
+              <p class="text-xs font-semibold text-zinc-600">${item.servico}</p>
+            </div>
+
+            <button onclick="alternarConcluido('${item.id}')" title="Confirmar pagamento/conclusão" class="w-10 h-10 rounded-full flex items-center justify-center transition shadow-sm shrink-0 ${item.concluido ? 'bg-emerald-500 text-white' : 'bg-white/90 text-zinc-700 hover:bg-white'}">
+              <i data-lucide="${item.concluido ? 'check' : 'circle'}" class="w-5 h-5"></i>
+            </button>
+          </div>
+
+          <div class="mt-3.5 flex flex-wrap items-center gap-2">
+            <button onclick="abrirModalFinanceiro('${item.id}')" class="px-3.5 py-1.5 rounded-full text-xs font-extrabold flex items-center gap-1.5 shadow-sm transition ${temValor ? 'bg-white/90 text-zinc-900 hover:bg-white' : 'bg-[#FDE047] text-amber-950 animate-pulse'}">
+              💰 ${temValor ? 'R$ ' + Number(item.valor).toFixed(2).replace('.', ',') : 'Definir Valor R$'}
+            </button>
+            ${item.concluido ? `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-900">✓ Recebido via ${item.forma_pagamento || 'Pix'}</span>` : ''}
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-black/5 flex items-center justify-between gap-2">
+            ${mostrarMapa ? `
+              <div class="flex items-center gap-1.5 text-xs font-medium text-zinc-700 truncate">
+                <i data-lucide="map-pin" class="w-3.5 h-3.5 shrink-0 text-zinc-600"></i>
+                <span class="truncate">${item.endereco}</span>
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <a href="${linkMaps}" target="_blank" class="px-3.5 py-1.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center gap-1 shadow-sm">
+                  <i data-lucide="navigation" class="w-3 h-3"></i> Rota
+                </a>
+                <button onclick="abrirModalExcluir('${item.id}')" class="w-7 h-7 rounded-full bg-white/80 hover:bg-rose-100 text-zinc-500 hover:text-rose-600 flex items-center justify-center text-xs font-bold">✕</button>
+              </div>
+            ` : `
+              <button onclick="abrirModalEditarAgendamento('${item.id}')" class="text-xs text-zinc-600 hover:underline">📍 + Adicionar endereço</button>
+              <button onclick="abrirModalExcluir('${item.id}')" class="text-xs font-bold text-rose-600 hover:underline">Cancelar</button>
+            `}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function renderTimeline(listaBase) {
+      const tl = document.getElementById("timeline-container");
+      tl.innerHTML = "";
+
+      listaBase.forEach(item => {
+        const paleta = estilosCores[item.concluido ? 'mint' : item.cor] || estilosCores.purple;
+        const temValor = item.valor !== null && item.valor > 0;
+        const row = document.createElement("div");
+        row.className = "flex gap-3 items-start";
+        row.innerHTML = `
+          <div class="w-14 pt-2 text-right shrink-0">
+            <span class="text-xs font-extrabold text-zinc-800 block">${item.horario}</span>
+            <span class="text-[10px] font-semibold text-zinc-400">${formatarDataCurta(item.data_agendamento)}</span>
+          </div>
+          <div class="flex flex-col items-center pt-2.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-violet-600 ring-4 ring-violet-100"></span>
+            <span class="w-0.5 h-16 bg-zinc-200 mt-1"></span>
+          </div>
+          <div class="flex-1 ${paleta.bg} ${paleta.border} border rounded-[22px] p-3.5 shadow-sm">
+            <div class="flex justify-between items-center gap-2">
+              <h4 onclick="abrirModalEditarAgendamento('${item.id}')" class="text-xs font-extrabold text-zinc-900 cursor-pointer hover:underline">${item.cliente} — ${item.servico}</h4>
+              <button onclick="abrirModalEditarAgendamento('${item.id}')" class="text-[11px] font-bold text-violet-700 hover:underline shrink-0">✏️ Editar</button>
+            </div>
+            <p class="text-[11px] text-zinc-600 mt-0.5">${item.endereco || 'Local a definir'}</p>
+            <div class="mt-2 flex items-center justify-between">
+              <button onclick="abrirModalFinanceiro('${item.id}')" class="text-[11px] font-bold ${temValor ? 'text-zinc-800' : 'text-amber-900 bg-amber-300/70 px-2 py-0.5 rounded-full'}">
+                ${temValor ? 'R$ ' + Number(item.valor).toFixed(2).replace('.', ',') : '💰 Definir Valor'}
+              </button>
+              <span class="text-[10px] font-bold ${item.concluido ? 'text-emerald-700' : 'text-zinc-500'}">${item.concluido ? '✓ Pago' : item.status}</span>
+            </div>
+          </div>
+        `;
+        tl.appendChild(row);
+      });
+    }
+
+    function renderTransacoes(listaCaixa) {
+      const box = document.getElementById("lista-transacoes");
+      box.innerHTML = "";
+
+      if (listaCaixa.length === 0) {
+        box.innerHTML = `<p class="text-xs text-zinc-400 text-center py-4">Nenhum lançamento neste período.</p>`;
+        return;
+      }
+
+      listaCaixa.forEach(item => {
+        const temValor = item.valor !== null && item.valor > 0;
+        const div = document.createElement("div");
+        div.className = "py-3 px-2 flex items-center justify-between gap-2";
+        div.innerHTML = `
+          <div class="flex items-center gap-3 min-w-0">
+            <button onclick="alternarConcluido('${item.id}')" class="w-9 h-9 rounded-full shrink-0 flex items-center justify-center ${item.concluido ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
+              <i data-lucide="${item.concluido ? 'check' : 'clock'}" class="w-4 h-4"></i>
+            </button>
+            <div class="truncate cursor-pointer" onclick="abrirModalEditarAgendamento('${item.id}')">
+              <p class="text-xs font-bold text-zinc-900 truncate hover:underline">${item.cliente} ✏️ • ${item.servico}</p>
+              <p class="text-[11px] text-zinc-400">${formatarDataBR(item.data_agendamento)} às ${item.horario} • ${item.concluido ? 'Pago (' + (item.forma_pagamento || 'Pix') + ')' : 'A receber'}</p>
+            </div>
+          </div>
+          <button onclick="abrirModalFinanceiro('${item.id}')" class="shrink-0 text-xs font-extrabold px-3 py-1.5 rounded-full ${temValor ? (item.concluido ? 'bg-emerald-50 text-emerald-700' : 'bg-zinc-100 text-zinc-800') : 'bg-[#FDE047] text-amber-950'}">
+            ${temValor ? 'R$ ' + Number(item.valor).toFixed(2).replace('.', ',') : 'Definir R$'}
+          </button>
+        `;
+        box.appendChild(div);
+      });
+    }
+
+    function salvarTarefasLocal() {
+      if (usuarioAuth) {
+        localStorage.setItem(`orbi_tarefas_${usuarioAuth.id}`, JSON.stringify(tarefas));
+      }
+    }
+
+    function renderTarefas() {
+      const box = document.getElementById("lista-tarefas");
+      box.innerHTML = "";
+      tarefas.forEach(t => {
+        const item = document.createElement("div");
+        item.className = "bg-white border border-zinc-200/80 rounded-2xl p-3.5 flex items-center justify-between shadow-sm";
+        item.innerHTML = `
+          <label class="flex items-center gap-3 cursor-pointer flex-1">
+            <input type="checkbox" ${t.feita ? 'checked' : ''} onchange="toggleTarefa(${t.id})" class="w-4 h-4 accent-zinc-900 rounded">
+            <span class="text-xs font-medium ${t.feita ? 'line-through text-zinc-400' : 'text-zinc-800'}">${t.texto}</span>
+          </label>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-violet-100 text-violet-700">${t.tag}</span>
+        `;
+        box.appendChild(item);
+      });
+    }
+
+    function abrirModalEditarAgendamento(id) {
+      const item = agendamentos.find(a => String(a.id) === String(id));
+      if (!item) return;
+
+      idEmEdicaoAgendamento = item.id;
+      const inputCliente = document.getElementById("edit-cliente");
+      inputCliente.value = item.cliente;
+      document.getElementById("edit-servico").value = item.servico;
+      document.getElementById("edit-data").value = item.data_agendamento;
+      document.getElementById("edit-horario").value = item.horario;
+      document.getElementById("edit-endereco").value = item.endereco || "";
+
+      document.getElementById("modal-editar-agendamento").classList.remove("hidden");
+      setTimeout(() => {
+        inputCliente.focus();
+        inputCliente.select();
+      }, 80);
+    }
+
+    function fecharModalEditarAgendamento() {
+      document.getElementById("modal-editar-agendamento").classList.add("hidden");
+      idEmEdicaoAgendamento = null;
+    }
+
+    async function salvarEdicaoAgendamento() {
+      const item = agendamentos.find(a => String(a.id) === String(idEmEdicaoAgendamento));
+      if (!item) return;
+
+      const novoCliente = document.getElementById("edit-cliente").value.trim() || "Cliente";
+      const novoServico = document.getElementById("edit-servico").value.trim() || "Atendimento";
+      const novaData = document.getElementById("edit-data").value || item.data_agendamento;
+      const novoHorario = (document.getElementById("edit-horario").value || item.horario).slice(0, 5);
+      const novoEndereco = document.getElementById("edit-endereco").value.trim();
+
+      const btn = document.getElementById("btn-salvar-edicao");
+      btn.innerText = "Sincronizando...";
+
+      item.cliente = novoCliente;
+      item.servico = novoServico;
+      item.data_agendamento = novaData;
+      item.horario = novoHorario;
+      item.endereco = novoEndereco;
+
+      const { error } = await supabaseClient
+        .from("agendamentos")
+        .update({
+          cliente: novoCliente,
+          servico: novoServico,
+          data_agendamento: novaData,
+          horario_inicio: novoHorario,
+          endereco: novoEndereco
+        })
+        .eq("id", item.id);
+
+      btn.innerText = "Salvar & Sincronizar";
+      fecharModalEditarAgendamento();
+
+      if (error) {
+        alert("Erro ao salvar alteração: " + error.message);
+      } else {
+        popularFiltroDatas();
+        atualizarTudo();
+        falarOrbi(`Prontinho! Atualizei os dados de ${novoCliente} na sua agenda ✨`);
+      }
+    }
+
+    function abrirModalFinanceiro(id) {
+      const item = agendamentos.find(a => String(a.id) === String(id));
+      if (!item) return;
+      idEmEdicaoFinanceira = item.id;
+      document.getElementById("fin-titulo-cliente").innerText = `${item.cliente} (${item.servico})`;
+      document.getElementById("fin-input-valor").value = item.valor !== null ? item.valor : "";
+      document.getElementById("fin-check-pago").checked = Boolean(item.concluido);
+      selecionarMetodo(item.forma_pagamento || "Pix");
+      document.getElementById("modal-financeiro").classList.remove("hidden");
+      lucide.createIcons();
+    }
+
+    function fecharModalFinanceiro() {
+      document.getElementById("modal-financeiro").classList.add("hidden");
+      idEmEdicaoFinanceira = null;
+    }
+
+    function selecionarMetodo(metodo) {
+      metodoSelecionadoModal = metodo;
+      ["Pix", "Cartão", "Dinheiro"].forEach(m => {
+        const btn = document.getElementById(`btn-metodo-${m}`);
+        if (m === metodo) {
+          btn.className = "py-2.5 rounded-2xl text-xs font-extrabold border-2 border-zinc-900 bg-zinc-900 text-white shadow-sm";
+        } else {
+          btn.className = "py-2.5 rounded-2xl text-xs font-bold border border-zinc-200 bg-zinc-50 text-zinc-700";
+        }
+      });
+    }
+
+    async function salvarFinanceiroSupabase() {
+      const item = agendamentos.find(a => String(a.id) === String(idEmEdicaoFinanceira));
+      if (!item) return;
+
+      const rawVal = document.getElementById("fin-input-valor").value;
+      const novoValor = rawVal !== "" ? parseFloat(String(rawVal).replace(",", ".")) : null;
+      const foiPago = document.getElementById("fin-check-pago").checked;
+      const novoStatus = foiPago ? "Pago" : "Confirmado";
+
+      item.valor = novoValor;
+      item.concluido = foiPago;
+      item.status = novoStatus;
+      item.forma_pagamento = metodoSelecionadoModal;
+
+      const btn = document.getElementById("btn-salvar-fin");
+      btn.innerText = "Salvando...";
+
+      const { error } = await supabaseClient
+        .from("agendamentos")
+        .update({
+          valor: novoValor,
+          status: novoStatus,
+          concluido: foiPago,
+          pago: foiPago,
+          forma_pagamento: metodoSelecionadoModal
+        })
+        .eq("id", item.id);
+
+      if (error) {
+        await supabaseClient.from("agendamentos").update({ valor: novoValor, status: novoStatus }).eq("id", item.id);
+      }
+
+      btn.innerText = "Salvar no Caixa";
+      fecharModalFinanceiro();
+      atualizarTudo();
+      if (foiPago) {
+        falarOrbi(`Dinheiro no caixa! 💰 R$ ${Number(novoValor || 0).toFixed(2).replace('.', ',')} recebido via ${metodoSelecionadoModal}!`);
+      }
+    }
+
+    async function alternarConcluido(id) {
+      const item = agendamentos.find(a => String(a.id) === String(id));
+      if (!item) return;
+
+      if ((item.valor === null || item.valor === 0) && !item.concluido) {
+        abrirModalFinanceiro(item.id);
+        return;
+      }
+
+      item.concluido = !item.concluido;
+      item.status = item.concluido ? "Pago" : "Confirmado";
+      atualizarTudo();
+
+      if (item.concluido) {
+        falarOrbi(`Boa! Atendimento de ${item.cliente} concluído e somado no seu caixa! 🎉💰`);
+      }
+
+      const { error } = await supabaseClient
+        .from("agendamentos")
+        .update({ status: item.status, concluido: item.concluido, pago: item.concluido })
+        .eq("id", item.id);
+
+      if (error) {
+        await supabaseClient.from("agendamentos").update({ status: item.status }).eq("id", item.id);
+      }
+    }
+
+    function abrirModalExcluir(id) {
+      idParaExcluir = id;
+      document.getElementById("modal-excluir").classList.remove("hidden");
+      lucide.createIcons();
+    }
+
+    function fecharModalExcluir() {
+      document.getElementById("modal-excluir").classList.add("hidden");
+      idParaExcluir = null;
+    }
+
+    async function confirmarExclusao() {
+      if (!idParaExcluir) return;
+      const id = idParaExcluir;
+      const btn = document.getElementById("btn-confirmar-excluir");
+      btn.innerText = "Apagando...";
+
+      agendamentos = agendamentos.filter(a => String(a.id) !== String(id));
+      await supabaseClient.from("agendamentos").delete().eq("id", id);
+
+      btn.innerText = "Sim, Apagar";
+      fecharModalExcluir();
+      popularFiltroDatas();
+      atualizarTudo();
+      falarOrbi("Compromisso removido da sua agenda! ✨");
+    }
+
+    function filtrarHoje(filtro) {
+      filtroAtual = filtro;
+      ["todos", "pendentes", "concluidos"].forEach(f => {
+        const btn = document.getElementById(`pill-${f}`);
+        if (f === filtro) {
+          btn.className = "px-4 py-2 rounded-full text-xs font-bold bg-zinc-900 text-white shadow-sm flex items-center gap-1.5 shrink-0 transition";
+        } else {
+          btn.className = "px-4 py-2 rounded-full text-xs font-semibold bg-white text-zinc-700 border border-zinc-200/80 flex items-center gap-1.5 shrink-0 transition";
+        }
+      });
+      renderCardsHoje(obterAgendamentosFiltradosPorData());
+      lucide.createIcons();
+    }
+
+    function alternarVisaoAgenda(qual) {
+      const btnH = document.getElementById("subtab-horarios");
+      const btnT = document.getElementById("subtab-tarefas");
+      if (qual === "horarios") {
+        document.getElementById("visao-horarios").classList.remove("hidden");
+        document.getElementById("visao-tarefas").classList.add("hidden");
+        btnH.className = "px-3 py-1.5 rounded-full bg-zinc-900 text-white transition";
+        btnT.className = "px-3 py-1.5 rounded-full text-zinc-600 transition";
+      } else {
+        document.getElementById("visao-horarios").classList.add("hidden");
+        document.getElementById("visao-tarefas").classList.remove("hidden");
+        btnT.className = "px-3 py-1.5 rounded-full bg-zinc-900 text-white transition";
+        btnH.className = "px-3 py-1.5 rounded-full text-zinc-600 transition";
+      }
+    }
+
+    function adicionarTarefa() {
+      const inp = document.getElementById("input-tarefa");
+      if (!inp.value.trim()) return;
+      tarefas.unshift({ id: Date.now(), texto: inp.value.trim(), feita: false, tag: "Lembrete" });
+      inp.value = "";
+      salvarTarefasLocal();
+      renderTarefas();
+      falarOrbi("Lembrete anotado na sua lista! 📝✨");
+    }
+
+    function toggleTarefa(id) {
+      const t = tarefas.find(x => x.id === id);
+      if (t) t.feita = !t.feita;
+      salvarTarefasLocal();
+      renderTarefas();
+    }
+
+    function abrirModalNovo() {
+      document.getElementById("novo-data").value = new Date().toISOString().split("T")[0];
+      document.getElementById("modal-novo").classList.remove("hidden");
+    }
+
+    function fecharModalNovo() {
+      document.getElementById("modal-novo").classList.add("hidden");
+    }
+
+    async function salvarNovoCompromisso() {
+      const cliente = document.getElementById("novo-cliente").value.trim() || "Nova Cliente";
+      const servico = document.getElementById("novo-servico").value.trim() || "Atendimento";
+      const data_agendamento = document.getElementById("novo-data").value || new Date().toISOString().split("T")[0];
+      const horario = document.getElementById("novo-horario").value || "14:00";
+      const valor = parseFloat(document.getElementById("novo-valor").value) || null;
+      const endereco = document.getElementById("novo-endereco").value.trim() || "";
+
+      const btn = document.getElementById("btn-salvar-novo");
+      btn.innerText = "Salvando e sincronizando...";
+
+      const payload = {
+        cliente,
+        servico,
+        data_agendamento,
+        horario_inicio: horario,
+        valor,
+        endereco,
+        status: "Confirmado",
+        user_id: usuarioAuth.id
+      };
+
+      const { data, error } = await supabaseClient
+        .from("agendamentos")
+        .insert([payload])
+        .select();
+
+      btn.innerText = "Salvar na Agenda & Sincronizar";
+      fecharModalNovo();
+
+      if (!error && data && data.length > 0) {
+        await carregarAgendamentosSupabase(true);
+        falarOrbi(`Agendado! ${cliente} marcada para ${formatarDataCurta(data_agendamento)} às ${horario} 📅💜`);
+      } else {
+        alert("Erro ao criar agendamento: " + (error?.message || "Verifique sua sessão."));
+      }
+    }
+
+    function togglePaywall(mostrar) {
+      document.getElementById("modal-paywall").classList.toggle("hidden", !mostrar);
+    }
+
+    function switchTab(tab) {
+      ["hoje", "agenda", "caixa", "config"].forEach(t => {
+        document.getElementById(`tab-${t}`).classList.add("hidden");
+        const nav = document.getElementById(`nav-${t}`);
+        nav.className = "nav-btn flex-1 py-2.5 rounded-full flex flex-col items-center justify-center gap-0.5 text-zinc-500 hover:text-zinc-900 transition";
+      });
+      document.getElementById(`tab-${tab}`).classList.remove("hidden");
+      const active = document.getElementById(`nav-${tab}`);
+      active.className = "nav-btn flex-1 py-2.5 rounded-full flex flex-col items-center justify-center gap-0.5 bg-zinc-900 text-white shadow-md transition";
+
+      if (tab === "caixa") falarOrbi("Aqui no Caixa você acompanha cada centavo recebido via Pix, Cartão ou Dinheiro 💰✨");
+      if (tab === "config") falarOrbi("Nessa aba você conecta seu WhatsApp na Celi e gerencia sua assinatura Orbi Pro 💜");
+      lucide.createIcons();
+    }
+
+    window.addEventListener("DOMContentLoaded", async () => {
+      lucide.createIcons();
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session?.user) {
+        await inicializarSessaoAutenticada(session.user);
+      }
+
+      setInterval(() => {
+        if (!document.hidden && usuarioAuth) carregarAgendamentosSupabase(true);
+      }, 10000);
+
+      window.addEventListener("focus", () => {
+        if (usuarioAuth) carregarAgendamentosSupabase(true);
+      });
+    });
+  </script>
+</body>
+</html>
