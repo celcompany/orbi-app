@@ -604,14 +604,14 @@
           <input id="input-email-calendar" type="email" placeholder="seuemail@gmail.com" class="w-full bg-zinc-50 border border-zinc-200 rounded-2xl px-4 py-2.5 text-xs font-bold text-zinc-900">
         </div>
 
-        <div class="bg-blue-50/70 border border-blue-200 rounded-2xl p-3 space-y-1">
-          <p class="text-[11px] font-bold text-blue-900">🍎 Sincronia com iPhone:</p>
-          <p class="text-[11px] text-blue-800 leading-relaxed">
-            No iPhone, basta que este mesmo Gmail esteja ativo em <strong>Ajustes → Apps → Calendário → Contas</strong>.
-          </p>
+        <div class="pt-2 border-t border-zinc-100 space-y-2">
+          <p class="text-[11px] font-bold text-zinc-600">Usa iPhone? Sincronize no app Calendário nativo:</p>
+          <button onclick="conectarAppleCalendarUmClique()" class="w-full py-3.5 bg-zinc-900 hover:bg-zinc-800 text-white font-bold rounded-full text-xs shadow-lg transition flex items-center justify-center gap-2">
+            <span>🍎 Sincronizar com Calendário do iPhone (1 Clique)</span>
+          </button>
         </div>
 
-        <button onclick="salvarEmailCalendario()" class="w-full py-3 bg-zinc-900 text-white font-bold rounded-full text-xs">
+        <button onclick="salvarEmailCalendario()" class="w-full py-3 bg-zinc-100 text-zinc-700 e font-bold rounded-full text-xs">
           Salvar Configuração
         </button>
       </div>
@@ -896,6 +896,15 @@
     const GOOGLE_CLIENT_ID = "835722983867-4qtinkhqsqj252bcvjfojnjmhld2h98e.apps.googleusercontent.com";
     const EMAIL_MOTOR_CENTRAL = "celcompany.secundario@gmail.com";
 
+    function conectarAppleCalendarUmClique() {
+      if (!usuarioAuth || !usuarioAuth.id) {
+        return alert("Faça login na sua conta primeiro para sincronizar a agenda!");
+      }
+      const dominioN8n = "agenda-larissa-n8n.ufeee7.easypanel.host";
+      const linkWebcal = `webcal://${dominioN8n}/webhook/agenda-iphone?uid=${usuarioAuth.id}`;
+      window.location.href = linkWebcal;
+    }
+    
     function conectarGoogleCalendarUmClique() {
       const btn = document.getElementById("btn-google-acl");
       btn.innerText = "Abrindo autorização do Google...";
