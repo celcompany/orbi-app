@@ -17,7 +17,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
     
@@ -91,7 +90,7 @@
             </div>
           </div>
           <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 flex items-center gap-1">
-            <i data-lucide="shield-check" class="w-3 h-3"></i> RLS 256-bit
+            <i data-lucide="shield-check" class="w-3 h-3"></i> Dados protegidos
           </span>
         </div>
 
@@ -163,7 +162,7 @@
       </div>
 
       <p class="text-[11px] text-center text-zinc-400 pt-4">
-        🔒 Conta individual blindada por criptografia Row-Level Security (RLS).
+        🔒 Seus dados ficam isolados por conta: só você acessa sua agenda.
       </p>
     </div>
 
@@ -591,12 +590,12 @@
         </div>
         <h3 class="text-base font-extrabold text-zinc-900">Conectar Minha Agenda</h3>
         <p class="text-xs text-zinc-500 leading-relaxed">
-          Autorize a Celi a anotar seus clientes direto dentro da sua agenda, sem precisar responder e-mails de convite:
+          Informe o Gmail da sua agenda. A Celi coloca cada atendimento nela em tempo real, sem pop-ups de autorização:
         </p>
 
         <button onclick="conectarGoogleCalendarUmClique()" id="btn-google-acl" class="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-full text-xs shadow-lg transition flex items-center justify-center gap-2">
           <i data-lucide="calendar-check" class="w-4 h-4"></i>
-          <span>🔗 Autorizar Google Calendar em 1 Clique</span>
+          <span>🔗 Confirmar meu Gmail e conectar</span>
         </button>
 
         <div class="space-y-2 pt-2 border-t border-zinc-100">
@@ -891,86 +890,57 @@
     const LINK_MP_ASSINATURA_CARTAO = "https://mpago.la/2oWzM4T";
     const LINK_MP_PAGAMENTO_PIX = "https://link.mercadopago.com.br/assinaturaorbipro";
     // ============================================================================
-    // COLE AQUI O BLOCO DO GOOGLE CALENDAR (ACL 1-CLIQUE)
+    // INTEGRAÇÕES DE CALENDÁRIO (SEM OAUTH DA CLIENTE)
     // ============================================================================
-    const GOOGLE_CLIENT_ID = "835722983867-4qtinkhqsqj252bcvjfojnjmhld2h98e.apps.googleusercontent.com";
     const EMAIL_MOTOR_CENTRAL = "celcompany.secundario@gmail.com";
 
+    // Escapa texto dinâmico antes de injetar em innerHTML (anti-XSS)
+    function esc(v) {
+      return String(v ?? "").replace(/[&<>"']/g, ch => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      }[ch]));
+    }
+
+    // iPhone: assina o feed .ics via Vercel (rewrite -> n8n), em HTTPS
     function conectarAppleCalendarUmClique() {
       if (!usuarioAuth || !usuarioAuth.id) {
         return alert("Faça login na sua conta primeiro para sincronizar a agenda!");
       }
-      const dominioN8n = "agenda-larissa-n8n.ufeee7.easypanel.host";
-      const linkWebcal = `webcal://${dominioN8n}/webhook/agenda-iphone?uid=${usuarioAuth.id}`;
-      window.location.href = linkWebcal;
+      window.location.href = `webcal://${window.location.host}/agenda/${usuarioAuth.id}.ics`;
     }
-    
-    function conectarGoogleCalendarUmClique() {
+
+    // Google: a profissional só confirma o Gmail; a Celi cria os eventos na conta central
+    // e convida esse e-mail como participante (tempo real, sem OAuth, sem aviso de app).
+    async function conectarGoogleCalendarUmClique() {
       const btn = document.getElementById("btn-google-acl");
-      btn.innerText = "Abrindo autorização do Google...";
+      const input = document.getElementById("input-email-calendar");
+      const email = (input.value || "").trim().toLowerCase();
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      if (!emailOk) {
+        input.focus();
+        return alert("Digite o e-mail do Google (Gmail) que você usa na sua agenda.");
+      }
+      if (!usuarioAuth) return alert("Faça login primeiro.");
 
-      const tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: GOOGLE_CLIENT_ID,
-        scope: "https://www.googleapis.com/auth/calendar.acls https://www.googleapis.com/auth/userinfo.email",
-        callback: async (tokenResponse) => {
-          if (tokenResponse.error) {
-            btn.innerText = "🔗 Autorizar Google Calendar em 1 Clique";
-            return alert("Autorização cancelada: " + tokenResponse.error);
-          }
+      const textoOriginal = btn.innerText;
+      btn.innerText = "Salvando...";
+      const { error } = await supabaseClient
+        .from("profiles")
+        .update({ google_calendar_id: email })
+        .eq("id", usuarioAuth.id);
 
-          try {
-            btn.innerText = "Vinculando agenda automaticamente...";
+      if (error) {
+        btn.innerText = textoOriginal;
+        return alert("Não foi possível salvar o e-mail: " + error.message);
+      }
 
-            // 1. Descobre o e-mail exato da conta Google que a cliente autorizou
-            const userRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-              headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
-            });
-            const userInfo = await userRes.json();
-            const emailCliente = userInfo.email || document.getElementById("input-email-calendar").value.trim();
-
-            // 2. Injeta o celcompany.secundario@gmail.com como EDITOR (writer) direto na agenda dela via ACL
-            const aclRes = await fetch("https://www.googleapis.com/calendar/v3/calendars/primary/acl?sendNotifications=false", {
-              method: "POST",
-              headers: {
-                "Authorization": `Bearer ${tokenResponse.access_token}`,
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify({
-                role: "writer",
-                scope: {
-                  type: "user",
-                  value: EMAIL_MOTOR_CENTRAL
-                }
-              })
-            });
-
-            if (!aclRes.ok) {
-              throw new Error("Não foi possível liberar a permissão na agenda.");
-            }
-
-            // 3. Salva o e-mail da agenda da profissional no Supabase (tabela profiles)
-            if (emailCliente && usuarioAuth) {
-              document.getElementById("input-email-calendar").value = emailCliente;
-              document.getElementById("txt-calendar-email").innerText = emailCliente + " (Direto ✓)";
-              await supabaseClient
-                .from("profiles")
-                .update({ google_calendar_id: emailCliente })
-                .eq("id", usuarioAuth.id);
-            }
-
-            btn.innerText = "✅ Agenda Conectada com Sucesso!";
-            falarOrbi(`Tudo pronto! Sua agenda (${emailCliente}) agora está conectada diretamente sem convites por e-mail! 📅💜`);
-            setTimeout(() => fecharModalCalendarios(), 1500);
-          } catch (err) {
-            btn.innerText = "🔗 Autorizar Google Calendar em 1 Clique";
-            alert("Erro ao vincular agenda: " + err.message);
-          }
-        }
-      });
-
-      tokenClient.requestAccessToken({ prompt: "consent" });
+      if (perfilAtual) perfilAtual.google_calendar_id = email;
+      document.getElementById("txt-calendar-email").innerText = email + " (Conectado ✓)";
+      btn.innerText = "✅ Gmail confirmado!";
+      falarOrbi(`Tudo certo! Seus atendimentos vão aparecer na agenda do Google de ${email} 📅💜`);
+      setTimeout(() => { btn.innerText = textoOriginal; fecharModalCalendarios(); }, 1500);
     }
-    
+
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let usuarioAuth = null;
@@ -1000,7 +970,7 @@
     function falarOrbi(texto, animacao = "jump") {
       const elMain = document.getElementById("fala-orbi-main");
       const imgMain = document.getElementById("img-orbi-main");
-      if (elMain) elMain.innerHTML = texto;
+      if (elMain) elMain.textContent = texto;
       if (imgMain) {
         imgMain.classList.remove("orbi-jump", "orbi-shake");
         void imgMain.offsetWidth;
@@ -1012,7 +982,7 @@
     function falarOrbiAuth(texto, animacao = "jump") {
       const elAuth = document.getElementById("fala-orbi-auth");
       const imgAuth = document.getElementById("img-orbi-auth");
-      if (elAuth) elAuth.innerHTML = texto;
+      if (elAuth) elAuth.textContent = texto;
       if (imgAuth) {
         imgAuth.classList.remove("orbi-jump", "orbi-shake");
         void imgAuth.offsetWidth;
@@ -1073,7 +1043,7 @@
       const box = document.getElementById("auth-feedback");
       box.classList.remove("hidden", "bg-rose-100", "text-rose-800", "bg-emerald-100", "text-emerald-800");
       box.classList.add(erro ? "bg-rose-100" : "bg-emerald-100", erro ? "text-rose-800" : "text-emerald-800");
-      box.innerHTML = msg;
+      box.textContent = msg;
       if (erro) falarOrbiAuth("Ops! Confere esse dado pra mim? 🧐", "shake");
     }
 
@@ -1526,23 +1496,23 @@
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-1.5 flex-wrap">
                 <span class="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-zinc-900 text-white">
-                  📅 ${formatarDataCurta(item.data_agendamento)} • ${item.horario}
+                  📅 ${formatarDataCurta(item.data_agendamento)} • ${esc(item.horario)}
                 </span>
                 <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${paleta.badge}">
-                  ${item.concluido ? 'Pago ✓' : item.status}
+                  ${item.concluido ? 'Pago ✓' : esc(item.status)}
                 </span>
               </div>
 
               <div onclick="abrirModalEditarAgendamento('${item.id}')" class="group cursor-pointer mt-2.5 inline-flex items-center gap-1.5 flex-wrap">
                 <h4 class="text-base font-extrabold text-zinc-900 group-hover:text-violet-700 transition">
-                  ${item.cliente}
+                  ${esc(item.cliente)}
                 </h4>
                 <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${nomeGenerico ? 'bg-amber-300/90 text-amber-950 animate-pulse' : 'bg-white/80 text-zinc-600'} flex items-center gap-1">
                   ✏️ ${nomeGenerico ? 'Colocar Nome' : 'Editar'}
                 </span>
               </div>
 
-              <p class="text-xs font-semibold text-zinc-600">${item.servico}</p>
+              <p class="text-xs font-semibold text-zinc-600">${esc(item.servico)}</p>
             </div>
 
             <button onclick="alternarConcluido('${item.id}')" title="Confirmar pagamento/conclusão" class="w-10 h-10 rounded-full flex items-center justify-center transition shadow-sm shrink-0 ${item.concluido ? 'bg-emerald-500 text-white' : 'bg-white/90 text-zinc-700 hover:bg-white'}">
@@ -1554,14 +1524,14 @@
             <button onclick="abrirModalFinanceiro('${item.id}')" class="px-3.5 py-1.5 rounded-full text-xs font-extrabold flex items-center gap-1.5 shadow-sm transition ${temValor ? 'bg-white/90 text-zinc-900 hover:bg-white' : 'bg-[#FDE047] text-amber-950 animate-pulse'}">
               💰 ${temValor ? 'R$ ' + Number(item.valor).toFixed(2).replace('.', ',') : 'Definir Valor R$'}
             </button>
-            ${item.concluido ? `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-900">✓ Recebido via ${item.forma_pagamento || 'Pix'}</span>` : ''}
+            ${item.concluido ? `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-900">✓ Recebido via ${esc(item.forma_pagamento || 'Pix')}</span>` : ''}
           </div>
 
           <div class="mt-4 pt-3 border-t border-black/5 flex items-center justify-between gap-2">
             ${mostrarMapa ? `
               <div class="flex items-center gap-1.5 text-xs font-medium text-zinc-700 truncate">
                 <i data-lucide="map-pin" class="w-3.5 h-3.5 shrink-0 text-zinc-600"></i>
-                <span class="truncate">${item.endereco}</span>
+                <span class="truncate">${esc(item.endereco)}</span>
               </div>
               <div class="flex items-center gap-1.5 shrink-0">
                 <a href="${linkMaps}" target="_blank" class="px-3.5 py-1.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center gap-1 shadow-sm">
@@ -1590,7 +1560,7 @@
         row.className = "flex gap-3 items-start";
         row.innerHTML = `
           <div class="w-14 pt-2 text-right shrink-0">
-            <span class="text-xs font-extrabold text-zinc-800 block">${item.horario}</span>
+            <span class="text-xs font-extrabold text-zinc-800 block">${esc(item.horario)}</span>
             <span class="text-[10px] font-semibold text-zinc-400">${formatarDataCurta(item.data_agendamento)}</span>
           </div>
           <div class="flex flex-col items-center pt-2.5">
@@ -1599,15 +1569,15 @@
           </div>
           <div class="flex-1 ${paleta.bg} ${paleta.border} border rounded-[22px] p-3.5 shadow-sm">
             <div class="flex justify-between items-center gap-2">
-              <h4 onclick="abrirModalEditarAgendamento('${item.id}')" class="text-xs font-extrabold text-zinc-900 cursor-pointer hover:underline">${item.cliente} — ${item.servico}</h4>
+              <h4 onclick="abrirModalEditarAgendamento('${item.id}')" class="text-xs font-extrabold text-zinc-900 cursor-pointer hover:underline">${esc(item.cliente)} — ${esc(item.servico)}</h4>
               <button onclick="abrirModalEditarAgendamento('${item.id}')" class="text-[11px] font-bold text-violet-700 hover:underline shrink-0">✏️ Editar</button>
             </div>
-            <p class="text-[11px] text-zinc-600 mt-0.5">${item.endereco || 'Local a definir'}</p>
+            <p class="text-[11px] text-zinc-600 mt-0.5">${esc(item.endereco || 'Local a definir')}</p>
             <div class="mt-2 flex items-center justify-between">
               <button onclick="abrirModalFinanceiro('${item.id}')" class="text-[11px] font-bold ${temValor ? 'text-zinc-800' : 'text-amber-900 bg-amber-300/70 px-2 py-0.5 rounded-full'}">
                 ${temValor ? 'R$ ' + Number(item.valor).toFixed(2).replace('.', ',') : '💰 Definir Valor'}
               </button>
-              <span class="text-[10px] font-bold ${item.concluido ? 'text-emerald-700' : 'text-zinc-500'}">${item.concluido ? '✓ Pago' : item.status}</span>
+              <span class="text-[10px] font-bold ${item.concluido ? 'text-emerald-700' : 'text-zinc-500'}">${item.concluido ? '✓ Pago' : esc(item.status)}</span>
             </div>
           </div>
         `;
@@ -1634,8 +1604,8 @@
               <i data-lucide="${item.concluido ? 'check' : 'clock'}" class="w-4 h-4"></i>
             </button>
             <div class="truncate cursor-pointer" onclick="abrirModalEditarAgendamento('${item.id}')">
-              <p class="text-xs font-bold text-zinc-900 truncate hover:underline">${item.cliente} ✏️ • ${item.servico}</p>
-              <p class="text-[11px] text-zinc-400">${formatarDataBR(item.data_agendamento)} às ${item.horario} • ${item.concluido ? 'Pago (' + (item.forma_pagamento || 'Pix') + ')' : 'A receber'}</p>
+              <p class="text-xs font-bold text-zinc-900 truncate hover:underline">${esc(item.cliente)} ✏️ • ${esc(item.servico)}</p>
+              <p class="text-[11px] text-zinc-400">${formatarDataBR(item.data_agendamento)} às ${esc(item.horario)} • ${item.concluido ? 'Pago (' + esc(item.forma_pagamento || 'Pix') + ')' : 'A receber'}</p>
             </div>
           </div>
           <button onclick="abrirModalFinanceiro('${item.id}')" class="shrink-0 text-xs font-extrabold px-3 py-1.5 rounded-full ${temValor ? (item.concluido ? 'bg-emerald-50 text-emerald-700' : 'bg-zinc-100 text-zinc-800') : 'bg-[#FDE047] text-amber-950'}">
@@ -1661,9 +1631,9 @@
         item.innerHTML = `
           <label class="flex items-center gap-3 cursor-pointer flex-1">
             <input type="checkbox" ${t.feita ? 'checked' : ''} onchange="toggleTarefa(${t.id})" class="w-4 h-4 accent-zinc-900 rounded">
-            <span class="text-xs font-medium ${t.feita ? 'line-through text-zinc-400' : 'text-zinc-800'}">${t.texto}</span>
+            <span class="text-xs font-medium ${t.feita ? 'line-through text-zinc-400' : 'text-zinc-800'}">${esc(t.texto)}</span>
           </label>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-violet-100 text-violet-700">${t.tag}</span>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-violet-100 text-violet-700">${esc(t.tag)}</span>
         `;
         box.appendChild(item);
       });
