@@ -1818,8 +1818,26 @@
       const btn = document.getElementById("btn-confirmar-excluir");
       btn.innerText = "Apagando...";
 
+      // Busca o google_event_id atual no banco (a lista local pode estar desatualizada)
+      let googleEventId = null;
+      try {
+        const { data: linha } = await supabaseClient.from("agendamentos").select("google_event_id").eq("id", id).maybeSingle();
+        googleEventId = linha?.google_event_id || null;
+      } catch (e) { /* segue sem o id */ }
+
       agendamentos = agendamentos.filter(a => String(a.id) !== String(id));
-      await supabaseClient.from("agendamentos").delete().eq("id", id);
+      const { error: erroExclusao } = await supabaseClient.from("agendamentos").delete().eq("id", id);
+
+      // Remove o evento do Google Calendar (via rewrite da Vercel -> n8n, sem CORS).
+      // O n8n ignora chamadas sem ID e tolera evento já apagado.
+      if (!erroExclusao && googleEventId) {
+        fetch("/api/excluir-evento", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ google_event_id: googleEventId, old_record: { id, google_event_id: googleEventId } }),
+          keepalive: true
+        }).catch(() => {});
+      }
 
       btn.innerText = "Sim, Apagar";
       fecharModalExcluir();
