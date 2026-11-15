@@ -7,32 +7,106 @@
 
   <!-- Configuração PWA para iPhone & Android (Tela Cheia Nativa) -->
   <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#FAF8F6">
+  <meta name="theme-color" content="#FAF7F2">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Orbi">
   <link rel="apple-touch-icon" href="/icon-orbi.png">
   <link rel="icon" type="image/png" href="/icon-orbi.png">
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    /* Paleta "Ateliê de Luxo": remapeia as famílias de cor do Tailwind (zinc, violet, emerald...)
+       para papel, carvão, terracota, sálvia e dourado champagne, sem mexer na lógica dos componentes. */
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"DM Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+            serif: ['"Cormorant Garamond"', '"Playfair Display"', 'Georgia', 'serif']
+          },
+          colors: {
+            zinc:    { 50:'#FBF8F3', 100:'#F3EDE3', 200:'#E8DFD1', 300:'#D6CABA', 400:'#A89B8B', 500:'#7D7063', 600:'#5E524A', 700:'#4A3F39', 800:'#382F2A', 900:'#2C2623', 950:'#1A1615' },
+            violet:  { 50:'#FBF1EC', 100:'#F6E1D7', 200:'#EDC7B5', 300:'#E2A68E', 400:'#D4856A', 500:'#C0694F', 600:'#A9553D', 700:'#8C432F', 800:'#6E3527', 900:'#552B22', 950:'#2F1711' },
+            emerald: { 50:'#F1F5EC', 100:'#E1EAD6', 200:'#C8D8B6', 300:'#A9C08F', 400:'#8AA66E', 500:'#6B8A4F', 600:'#587240', 700:'#475C35', 800:'#39492C', 900:'#2E3B25', 950:'#18200F' },
+            amber:   { 50:'#FBF5E6', 100:'#F5E8C3', 200:'#EBD493', 300:'#DDBB6A', 400:'#C5A059', 500:'#B8860B', 600:'#9A6F0A', 700:'#7A5710', 800:'#5E440F', 900:'#46340F', 950:'#2A1E08' },
+            rose:    { 50:'#FBEFEF', 100:'#F6DADA', 200:'#EDBDBD', 300:'#E09B9A', 400:'#CF7472', 500:'#C25552', 600:'#B4423F', 700:'#93332F', 800:'#772A27', 900:'#5E2220' },
+            blue:    { 50:'#EEF2F4', 100:'#DDE6EA', 200:'#C2D1D8', 300:'#9FB5C0', 400:'#7C98A8', 500:'#5B7686', 600:'#46606E', 700:'#374C58', 800:'#2B3C46', 900:'#212E36' },
+            sky:     { 50:'#EEF2F4', 100:'#DDE6EA', 200:'#C2D1D8', 500:'#5B7686', 900:'#212E36' },
+            pink:    { 200:'#EDC7B5', 500:'#C0694F', 900:'#552B22' },
+            lime:    { 200:'#DDE6C8', 300:'#C3D4A0', 400:'#A9C07A' },
+            teal:    { 600:'#46606E' },
+            indigo:  { 600:'#46606E' }
+          },
+          boxShadow: {
+            sm:   '0 1px 2px rgba(70,48,28,.06), 0 2px 8px -3px rgba(70,48,28,.10)',
+            md:   '0 2px 4px rgba(70,48,28,.06), 0 8px 18px -8px rgba(70,48,28,.22)',
+            lg:   '0 4px 8px rgba(70,48,28,.05), 0 16px 30px -14px rgba(70,48,28,.30)',
+            xl:   '0 6px 12px rgba(70,48,28,.06), 0 24px 44px -20px rgba(70,48,28,.38)',
+            '2xl':'0 30px 70px -28px rgba(44,38,35,.55)'
+          }
+        }
+      }
+    };
+  </script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-    
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background-color: #f3effb;
-      color: #18181b;
-      -webkit-tap-highlight-color: transparent;
+    :root {
+      --paper: #FAF7F2;
+      --paper-deep: #F3EDE2;
+      --card: #FFFFFF;
+      --sand: #E8DFD1;
+      --sand-deep: #D8CBB6;
+      --champagne: #C5A059;
+      --gold: #B8860B;
+      --terracotta: #B5654A;
+      --ink: #2C2623;
+      --ink-soft: #6B5E55;
+      --espresso: #1A1615;
+      --serif: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+      --sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
     }
 
-    .app-bg {
-      background:
-        radial-gradient(circle at 90% 4%, rgba(253, 213, 195, 0.75) 0%, rgba(253, 213, 195, 0) 45%),
-        radial-gradient(circle at 10% 12%, rgba(226, 208, 255, 0.75) 0%, rgba(226, 208, 255, 0) 50%),
-        #FAF8F6;
+    html { background: #EAE2D4; }
+    body {
+      font-family: var(--sans);
+      background-color: #EAE2D4;
+      color: var(--ink);
+      -webkit-tap-highlight-color: transparent;
+      -webkit-font-smoothing: antialiased;
     }
+    ::selection { background: rgba(197, 160, 89, .32); }
+
+    /* Papel de ateliê: marfim quente + grão fino + brilho champagne no topo */
+    .app-bg {
+      background-color: var(--paper);
+      background-image:
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .42  0 0 0 0 .33  0 0 0 0 .22  0 0 0 .07 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"),
+        radial-gradient(120% 55% at 50% -8%, rgba(197, 160, 89, .13) 0%, rgba(197, 160, 89, 0) 62%),
+        radial-gradient(80% 40% at 100% 100%, rgba(181, 101, 74, .06) 0%, rgba(181, 101, 74, 0) 70%);
+    }
+
+    /* Tipografia editorial: serifada nos títulos, sans geométrica no resto */
+    h1, h2, h3, h4 {
+      font-family: var(--serif) !important;
+      font-weight: 600 !important;
+      letter-spacing: -0.005em;
+      color: var(--ink);
+    }
+    input, select, button, textarea { font-family: var(--sans); }
+    input, select { color: var(--ink); }
+    input:focus, select:focus {
+      border-color: var(--champagne) !important;
+      box-shadow: 0 0 0 3px rgba(197, 160, 89, .20);
+      outline: none;
+    }
+    input::placeholder { color: #B3A697; }
+    button { transition: transform .15s ease, background-color .2s ease, border-color .2s ease, box-shadow .2s ease, color .2s ease; }
+    button:active { transform: scale(.97); }
 
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -42,6 +116,113 @@
       transform: rotate(-90deg);
       transform-origin: 50% 50%;
     }
+
+    /* ---------- Superfícies de papelaria ---------- */
+    .paper-card {
+      background: #FFFFFF;
+      border: 1px solid var(--sand);
+      border-radius: 20px;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .9),
+        0 14px 34px -22px rgba(70, 48, 28, .40),
+        0 2px 8px -4px rgba(70, 48, 28, .10);
+    }
+    .sheet {
+      background: #FFFDF9;
+      border: 1px solid var(--sand);
+      box-shadow: 0 40px 90px -30px rgba(44, 38, 35, .55);
+      position: relative;
+    }
+    .sheet::before {
+      content: '';
+      position: absolute;
+      top: 9px; left: 50%;
+      width: 38px; height: 3px;
+      border-radius: 3px;
+      background: var(--sand-deep);
+      transform: translateX(-50%);
+    }
+    .hairline-gold {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--champagne), transparent);
+      opacity: .65;
+    }
+
+    /* ---------- Páginas de planner ---------- */
+    .spine-card { position: relative; overflow: hidden; }
+    .spine-card::before {
+      content: ''; z-index: 2;
+      position: absolute; left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--spine, var(--champagne));
+    }
+    .planner-card { display: flex; align-items: stretch; }
+    .planner-time-col {
+      position: relative;
+      width: 76px; flex-shrink: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 5px;
+      padding: 16px 8px 16px 10px;
+      background: linear-gradient(180deg, #FDFBF7 0%, #F7F1E7 100%);
+    }
+    /* linha dupla vertical, como a margem de uma página de agenda */
+    .planner-time-col::after {
+      content: '';
+      position: absolute; top: 0; bottom: 0; right: 0;
+      width: 4px;
+      border-left: 1px solid rgba(181, 101, 74, .38);
+      border-right: 1px solid rgba(181, 101, 74, .16);
+    }
+    .planner-time {
+      font-family: var(--sans);
+      font-variant-numeric: tabular-nums lining-nums;
+      font-weight: 600;
+      font-size: 20px;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      color: var(--ink);
+    }
+    .planner-date {
+      font-size: 9.5px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: #9B8D7E;
+    }
+    .planner-card.is-done .planner-time { color: #587240; }
+    .planner-card.is-done { background: #FCFDFA; }
+
+    .stamp-btn {
+      width: 40px; height: 40px;
+      border-radius: 999px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      border: 1.5px solid var(--sand-deep);
+      background: #fff;
+      color: #A89B8B;
+    }
+    .stamp-btn:hover { border-color: var(--champagne); color: var(--gold); }
+    .stamp-btn.is-on {
+      background: #587240; border-color: #587240; color: #fff;
+      box-shadow: 0 8px 16px -8px rgba(88, 114, 64, .65);
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 999px;
+      line-height: 1.45;
+    }
+
+    /* Linha do tempo: o último marcador não prolonga a régua */
+    .tl-row:last-child .tl-line { display: none; }
+
+    nav .nav-btn span { letter-spacing: .05em; }
+    #badge-status-assinatura, #badge-status-whats, #status-sync { white-space: nowrap; }
 
     /* Animações Vivas da Mascote Orbi */
     @keyframes orbiFloat {
@@ -70,6 +251,10 @@
     .orbi-shake {
       animation: orbiShake 0.4s ease-in-out 2 !important;
     }
+    @media (prefers-reduced-motion: reduce) {
+      .orbi-alive { animation: none; }
+      button:active { transform: none; }
+    }
   </style>
 </head>
 <body class="flex justify-center min-h-screen">
@@ -83,25 +268,25 @@
         <!-- Topo de Marca -->
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2.5">
-            <img src="/icon-orbi.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/10691/10691802.png'" alt="Orbi" class="w-10 h-10 rounded-2xl object-cover shadow-md border border-violet-300/50">
+            <img src="/icon-orbi.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/10691/10691802.png'" alt="Orbi" class="w-10 h-10 rounded-xl object-cover shadow-md border border-violet-300/50">
             <div>
-              <h1 class="text-base font-extrabold text-zinc-900 tracking-tight">Orbi App</h1>
+              <h1 class="text-[21px] font-extrabold text-zinc-900 tracking-tight">Orbi App</h1>
               <p class="text-[11px] font-medium text-zinc-500">Agenda Inteligente & Assistente Celi</p>
             </div>
           </div>
-          <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 flex items-center gap-1">
+          <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 flex items-center gap-1 whitespace-nowrap shrink-0">
             <i data-lucide="shield-check" class="w-3 h-3"></i> Dados protegidos
           </span>
         </div>
 
         <!-- Card Interativo da Mascote Orbi no Login -->
-        <div onclick="interagirOrbiAuth()" class="bg-[#1C1C21] text-white p-4 rounded-[28px] shadow-xl flex items-center gap-4 relative overflow-hidden cursor-pointer border border-violet-500/20">
+        <div onclick="interagirOrbiAuth()" class="bg-[#2C2623] text-white p-4 rounded-[20px] shadow-xl flex items-center gap-4 relative overflow-hidden cursor-pointer border border-[#C5A059]/30">
           <div class="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-violet-500/25 blur-xl pointer-events-none"></div>
-          <img id="img-orbi-auth" src="/mascote-orbi.png" onerror="this.src='/icon-orbi.png'" alt="Mascote Orbi" class="w-16 h-16 rounded-2xl object-cover shrink-0 orbi-alive shadow-lg border border-violet-400/30">
+          <img id="img-orbi-auth" src="/mascote-orbi.png" onerror="this.src='/icon-orbi.png'" alt="Mascote Orbi" class="w-16 h-16 rounded-xl object-cover shrink-0 orbi-alive shadow-lg border border-violet-400/30">
           <div class="space-y-1">
             <div class="flex items-center gap-1.5">
-              <span class="text-[10px] font-extrabold uppercase tracking-wider text-violet-300 bg-violet-500/20 px-2 py-0.5 rounded-full">Orbi • Sua Ajudante</span>
-              <span class="text-[10px] text-zinc-400">Toque em mim ✨</span>
+              <span class="text-[10px] font-semibold uppercase tracking-[0.12em] whitespace-nowrap text-violet-300 bg-violet-500/20 px-2 py-0.5 rounded-full">Orbi • Sua Ajudante</span>
+              <span class="text-[10px] text-zinc-400 whitespace-nowrap">Toque em mim ✨</span>
             </div>
             <p id="fala-orbi-auth" class="text-xs font-semibold text-zinc-100 leading-relaxed">
               Oi! Eu sou a Orbi 💜 Crie sua conta ou faça login para eu colocar sua agenda no piloto automático!
@@ -119,17 +304,17 @@
           </button>
         </div>
 
-        <div id="auth-feedback" class="hidden p-3.5 rounded-2xl text-xs font-semibold"></div>
+        <div id="auth-feedback" class="hidden p-3.5 rounded-xl text-xs font-semibold"></div>
 
         <!-- FORMULÁRIO DE LOGIN -->
         <div id="form-login" class="space-y-3.5">
           <div>
-            <label class="text-xs font-bold text-zinc-700 block mb-1">Seu E-mail</label>
-            <input id="login-email" type="email" placeholder="seuemail@gmail.com" class="w-full bg-white border border-zinc-200 rounded-2xl px-4 py-3 text-xs text-zinc-900 focus:outline-none focus:border-violet-500 shadow-sm">
+            <label class="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500 block mb-1">Seu E-mail</label>
+            <input id="login-email" type="email" placeholder="seuemail@gmail.com" class="w-full bg-white border border-zinc-200 rounded-xl px-4 py-3 text-xs text-zinc-900 focus:outline-none focus:border-violet-500 shadow-sm">
           </div>
           <div>
-            <label class="text-xs font-bold text-zinc-700 block mb-1">Senha de Acesso</label>
-            <input id="login-senha" type="password" placeholder="••••••••" class="w-full bg-white border border-zinc-200 rounded-2xl px-4 py-3 text-xs text-zinc-900 focus:outline-none focus:border-violet-500 shadow-sm">
+            <label class="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500 block mb-1">Senha de Acesso</label>
+            <input id="login-senha" type="password" placeholder="••••••••" class="w-full bg-white border border-zinc-200 rounded-xl px-4 py-3 text-xs text-zinc-900 focus:outline-none focus:border-violet-500 shadow-sm">
           </div>
           <button onclick="fazerLoginReal()" id="btn-submit-login" class="w-full py-3.5 bg-zinc-900 hover:bg-zinc-800 text-white font-bold rounded-full text-xs shadow-lg transition flex items-center justify-center gap-2">
             <span>Entrar no Orbi App</span>
@@ -140,20 +325,20 @@
         <!-- FORMULÁRIO DE CADASTRO (PARA NOVAS PROFISSIONAIS) -->
         <div id="form-cadastro" class="space-y-3 hidden">
           <div>
-            <label class="text-xs font-bold text-zinc-700 block mb-1">Seu Nome ou Nome do Espaço</label>
-            <input id="cad-nome" type="text" placeholder="Ex: Larissa Mendes" class="w-full bg-white border border-zinc-200 rounded-2xl px-4 py-2.5 text-xs text-zinc-900 focus:outline-none focus:border-violet-500">
+            <label class="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500 block mb-1">Seu Nome ou Nome do Espaço</label>
+            <input id="cad-nome" type="text" placeholder="Ex: Larissa Mendes" class="w-full bg-white border border-zinc-200 rounded-xl px-4 py-2.5 text-xs text-zinc-900 focus:outline-none focus:border-violet-500">
           </div>
           <div>
-            <label class="text-xs font-bold text-zinc-700 block mb-1">Seu WhatsApp (Com DDD)</label>
-            <input id="cad-whats" type="tel" placeholder="Ex: 11999999999" class="w-full bg-white border border-zinc-200 rounded-2xl px-4 py-2.5 text-xs text-zinc-900 focus:outline-none focus:border-violet-500">
+            <label class="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500 block mb-1">Seu WhatsApp (Com DDD)</label>
+            <input id="cad-whats" type="tel" placeholder="Ex: 11999999999" class="w-full bg-white border border-zinc-200 rounded-xl px-4 py-2.5 text-xs text-zinc-900 focus:outline-none focus:border-violet-500">
           </div>
           <div>
-            <label class="text-xs font-bold text-zinc-700 block mb-1">Seu E-mail (Mesmo da sua Agenda)</label>
-            <input id="cad-email" type="email" placeholder="seuemail@gmail.com" class="w-full bg-white border border-zinc-200 rounded-2xl px-4 py-2.5 text-xs text-zinc-900 focus:outline-none focus:border-violet-500">
+            <label class="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500 block mb-1">Seu E-mail (Mesmo da sua Agenda)</label>
+            <input id="cad-email" type="email" placeholder="seuemail@gmail.com" class="w-full bg-white border border-zinc-200 rounded-xl px-4 py-2.5 text-xs text-zinc-900 focus:outline-none focus:border-violet-500">
           </div>
           <div>
-            <label class="text-xs font-bold text-zinc-700 block mb-1">Criar Senha Segura</label>
-            <input id="cad-senha" type="password" placeholder="Mínimo 6 caracteres" class="w-full bg-white border border-zinc-200 rounded-2xl px-4 py-2.5 text-xs text-zinc-900 focus:outline-none focus:border-violet-500">
+            <label class="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500 block mb-1">Criar Senha Segura</label>
+            <input id="cad-senha" type="password" placeholder="Mínimo 6 caracteres" class="w-full bg-white border border-zinc-200 rounded-xl px-4 py-2.5 text-xs text-zinc-900 focus:outline-none focus:border-violet-500">
           </div>
           <button onclick="fazerCadastroReal()" id="btn-submit-cadastro" class="w-full py-3.5 bg-violet-600 hover:bg-violet-500 text-white font-bold rounded-full text-xs shadow-lg transition">
             Criar Minha Conta & Gerar Código Orbi
@@ -175,14 +360,14 @@
               O
             </div>
           </div>
-          <span class="w-3 h-3 rounded-full bg-emerald-500 border-2 border-[#FAF8F6] absolute bottom-0 right-0" title="Online"></span>
+          <span class="w-3 h-3 rounded-full bg-emerald-500 border-2 border-[#FAF7F2] absolute bottom-0 right-0" title="Online"></span>
         </div>
         <div>
           <div class="flex items-center gap-1.5">
-            <p class="text-xs font-medium text-zinc-500">Olá 👋</p>
+            <p class="text-[11px] font-medium text-zinc-500 tracking-wide">Olá,</p>
             <span id="status-sync" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">● Online</span>
           </div>
-          <h1 id="header-nome-usuario" class="text-sm font-extrabold text-zinc-900">Profissional</h1>
+          <h1 id="header-nome-usuario" class="text-[19px] font-extrabold text-zinc-900">Profissional</h1>
         </div>
       </div>
 
@@ -198,11 +383,11 @@
 
     <!-- ================= BARRA INTERATIVA DA MASCOTE ORBI (EM TODAS AS ABAS) ================= -->
     <div class="px-6 pt-1 pb-2 z-10">
-      <div onclick="clicarMascoteOrbi()" class="bg-white/95 border border-violet-200/90 rounded-[24px] p-3 shadow-sm flex items-center gap-3.5 cursor-pointer hover:border-violet-400 transition relative overflow-hidden">
-        <img id="img-orbi-main" src="/mascote-orbi.png" onerror="this.src='/icon-orbi.png'" alt="Orbi" class="w-13 h-13 w-12 h-12 rounded-2xl object-cover shrink-0 orbi-alive shadow-sm">
+      <div onclick="clicarMascoteOrbi()" class="paper-card p-3 flex items-center gap-3.5 cursor-pointer hover:border-[#C5A059] transition relative overflow-hidden">
+        <img id="img-orbi-main" src="/mascote-orbi.png" onerror="this.src='/icon-orbi.png'" alt="Orbi" class="w-13 h-13 w-12 h-12 rounded-xl object-cover shrink-0 orbi-alive shadow-sm">
         <div class="flex-1 min-w-0">
           <div class="flex items-center justify-between">
-            <span class="text-[10px] font-extrabold uppercase tracking-wider text-violet-700">Orbi • Assistente Viva</span>
+            <span class="text-[10px] font-semibold uppercase tracking-[0.18em] text-violet-700">Orbi • Assistente Viva</span>
             <span class="text-[10px] font-semibold text-zinc-400">Toque para dica ✨</span>
           </div>
           <p id="fala-orbi-main" class="text-xs font-semibold text-zinc-800 leading-snug mt-0.5">
@@ -219,9 +404,9 @@
       <section id="tab-hoje" class="space-y-5">
         <div class="flex items-end justify-between gap-2">
           <div>
-            <p class="text-[11px] font-bold uppercase tracking-wider text-violet-600">Painel de Controle</p>
-            <h2 class="text-2xl font-extrabold tracking-tight text-zinc-900">
-              Seus Atendimentos ✨
+            <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-600">Painel de Controle</p>
+            <h2 class="text-[31px] leading-none font-extrabold tracking-tight text-zinc-900">
+              Seus Atendimentos
             </h2>
           </div>
           <select id="select-data-filtro" onchange="mudarFiltroData(this.value)" class="bg-white border border-zinc-200/90 rounded-full px-3 py-1.5 text-xs font-bold text-zinc-800 shadow-sm focus:outline-none">
@@ -230,7 +415,7 @@
         </div>
 
         <!-- Card Escuro de Progresso -->
-        <div class="bg-[#1C1C21] text-white rounded-[28px] p-5 shadow-xl relative overflow-hidden">
+        <div class="bg-[#2C2623] text-[#FAF7F2] rounded-[20px] p-5 shadow-xl relative overflow-hidden border border-[#C5A059]/30">
           <div class="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-violet-500/20 blur-2xl pointer-events-none"></div>
           
           <div class="flex justify-between items-center mb-3">
@@ -243,8 +428,8 @@
           <div class="flex items-center justify-between gap-4">
             <div class="relative w-24 h-24 flex items-center justify-center shrink-0">
               <svg class="w-24 h-24" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="40" stroke="#32323A" stroke-width="10" fill="transparent"/>
-                <circle id="circle-progress" class="progress-ring__circle" cx="50" cy="50" r="40" stroke="#bef264" stroke-width="10" stroke-linecap="round" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="251.2"/>
+                <circle cx="50" cy="50" r="40" stroke="#4A3F39" stroke-width="10" fill="transparent"/>
+                <circle id="circle-progress" class="progress-ring__circle" cx="50" cy="50" r="40" stroke="#C5A059" stroke-width="10" stroke-linecap="round" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="251.2"/>
               </svg>
               <div class="absolute inset-0 flex flex-col items-center justify-center">
                 <span id="txt-percentual" class="text-lg font-extrabold text-white">0%</span>
@@ -284,7 +469,7 @@
         <!-- Filtros Rápidos -->
         <div class="space-y-3">
           <div class="flex items-center justify-between">
-            <h3 class="text-base font-bold text-zinc-900">Compromissos</h3>
+            <h3 class="text-[21px] font-bold text-zinc-900">Compromissos</h3>
             <button onclick="switchTab('agenda')" class="text-xs font-semibold text-violet-700 hover:underline">Ver Linha do Tempo</button>
           </div>
 
@@ -313,7 +498,7 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-xs font-semibold text-zinc-400">Sincronizado com Google & iPhone</p>
-            <h2 class="text-2xl font-extrabold text-zinc-900">Programação</h2>
+            <h2 class="text-[31px] leading-none font-extrabold text-zinc-900">Programação</h2>
           </div>
           <div class="bg-white p-1 rounded-full border border-zinc-200 flex text-xs font-semibold">
             <button id="subtab-horarios" onclick="alternarVisaoAgenda('horarios')" class="px-3 py-1.5 rounded-full bg-zinc-900 text-white transition">Horários</button>
@@ -324,13 +509,13 @@
         <div id="strip-datas-agenda" class="flex gap-2 overflow-x-auto no-scrollbar py-1"></div>
 
         <div id="visao-horarios" class="space-y-4 pt-1">
-          <div id="timeline-container" class="space-y-4"></div>
+          <div id="timeline-container"></div>
         </div>
 
         <div id="visao-tarefas" class="space-y-4 pt-1 hidden">
           <div class="flex gap-2">
-            <input id="input-tarefa" type="text" placeholder="Adicionar lembrete ou tarefa..." class="flex-1 bg-white border border-zinc-200 rounded-2xl px-4 py-3 text-xs text-zinc-900 placeholder-zinc-400 focus:outline-none focus:border-violet-500 shadow-sm">
-            <button onclick="adicionarTarefa()" class="bg-zinc-900 text-white px-4 rounded-2xl text-xs font-bold shadow-sm">Criar</button>
+            <input id="input-tarefa" type="text" placeholder="Adicionar lembrete ou tarefa..." class="flex-1 bg-white border border-zinc-200 rounded-xl px-4 py-3 text-xs text-zinc-900 placeholder-zinc-400 focus:outline-none focus:border-violet-500 shadow-sm">
+            <button onclick="adicionarTarefa()" class="bg-zinc-900 text-white px-4 rounded-xl text-xs font-bold shadow-sm">Criar</button>
           </div>
           <div id="lista-tarefas" class="space-y-2.5"></div>
         </div>
@@ -341,7 +526,7 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-xs font-semibold text-zinc-400">Seus Recebimentos</p>
-            <h2 class="text-2xl font-extrabold text-zinc-900">Caixa & Finanças</h2>
+            <h2 class="text-[31px] leading-none font-extrabold text-zinc-900">Caixa & Finanças</h2>
           </div>
           <select id="select-mes-caixa" onchange="atualizarTudo()" class="bg-white border border-zinc-200 rounded-full px-3 py-1.5 text-xs font-bold text-zinc-800 shadow-sm">
             <option value="todos">Todo o Período</option>
@@ -361,24 +546,24 @@
         </div>
 
         <div class="grid grid-cols-2 gap-3.5">
-          <div class="bg-gradient-to-br from-emerald-500 to-teal-600 text-white p-4 rounded-[26px] shadow-lg shadow-emerald-500/15">
-            <div class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center mb-2.5">
+          <div class="paper-card p-4">
+            <div class="w-8 h-8 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center mb-3">
               <i data-lucide="check-circle-2" class="w-4 h-4"></i>
             </div>
-            <p class="text-xs font-medium text-emerald-50">Recebido (Pago)</p>
-            <p id="caixa-recebido" class="text-xl font-extrabold mt-0.5">R$ 0,00</p>
+            <p class="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Recebido (Pago)</p>
+            <p id="caixa-recebido" class="text-[22px] font-bold tracking-tight text-emerald-700 mt-1" style="font-variant-numeric: tabular-nums">R$ 0,00</p>
           </div>
 
-          <div class="bg-gradient-to-br from-violet-600 to-indigo-600 text-white p-4 rounded-[26px] shadow-lg shadow-violet-500/15">
-            <div class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center mb-2.5">
+          <div class="bg-[#2C2623] text-[#FAF7F2] p-4 rounded-[20px] border border-[#C5A059]/30 shadow-lg">
+            <div class="w-8 h-8 rounded-full bg-[#C5A059]/15 border border-[#C5A059]/40 text-[#E6CD94] flex items-center justify-center mb-3">
               <i data-lucide="calendar-clock" class="w-4 h-4"></i>
             </div>
-            <p class="text-xs font-medium text-violet-100">Previsão Total</p>
-            <p id="caixa-previsto" class="text-xl font-extrabold mt-0.5">R$ 0,00</p>
+            <p class="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#C9BBA6]">Previsão Total</p>
+            <p id="caixa-previsto" class="text-[22px] font-bold tracking-tight text-[#E6CD94] mt-1" style="font-variant-numeric: tabular-nums">R$ 0,00</p>
           </div>
         </div>
 
-        <div class="bg-white rounded-[24px] p-4 border border-zinc-200/80 shadow-sm space-y-3">
+        <div class="bg-white rounded-[18px] p-4 border border-zinc-200/80 shadow-sm space-y-3">
           <div class="flex justify-between items-center text-xs">
             <span class="font-bold text-zinc-700">Falta Receber (Pendente)</span>
             <span id="caixa-falta" class="font-extrabold text-amber-600">R$ 0,00</span>
@@ -402,7 +587,7 @@
           </div>
         </div>
 
-        <div id="card-alerta-valor" class="bg-[#FEF3C7] border border-amber-300/80 p-4 rounded-[24px] space-y-1.5">
+        <div id="card-alerta-valor" class="bg-[#F8F0DC] border border-amber-300/80 p-4 rounded-[18px] space-y-1.5">
           <div class="flex items-center justify-between">
             <span class="text-xs font-bold text-amber-900">⚠️ Lembrete da Orbi</span>
             <span id="qtd-sem-valor" class="text-[11px] font-bold bg-amber-400/40 text-amber-950 px-2 py-0.5 rounded-full">0 pendente(s)</span>
@@ -413,8 +598,8 @@
         </div>
 
         <div class="space-y-3">
-          <h3 class="text-sm font-bold text-zinc-900">Lançamentos da Agenda</h3>
-          <div id="lista-transacoes" class="bg-white rounded-[26px] p-3 border border-zinc-200/70 divide-y divide-zinc-100 shadow-sm"></div>
+          <h3 class="text-[19px] font-bold text-zinc-900">Lançamentos da Agenda</h3>
+          <div id="lista-transacoes" class="bg-white rounded-[20px] p-3 border border-zinc-200/70 divide-y divide-zinc-100 shadow-sm"></div>
         </div>
       </section>
 
@@ -423,19 +608,19 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-xs font-semibold text-zinc-400">Conexões & Assinatura</p>
-            <h2 class="text-2xl font-extrabold text-zinc-900">Celi & Conta</h2>
+            <h2 class="text-[31px] leading-none font-extrabold text-zinc-900">Celi & Conta</h2>
           </div>
           <button onclick="fazerLogout()" class="px-3.5 py-1.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-xs font-bold flex items-center gap-1.5 hover:bg-rose-100 transition">
             <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Sair da Conta
           </button>
         </div>
 
-        <div class="bg-white rounded-[26px] p-5 border border-zinc-200/80 shadow-sm space-y-3.5">
+        <div class="bg-white rounded-[20px] p-5 border border-zinc-200/80 shadow-sm space-y-3.5">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3.5">
-              <img src="/mascote-orbi.png" onerror="this.src='/icon-orbi.png'" class="w-12 h-12 rounded-2xl object-cover shadow-md border border-emerald-200">
+              <img src="/mascote-orbi.png" onerror="this.src='/icon-orbi.png'" class="w-12 h-12 rounded-xl object-cover shadow-md border border-emerald-200">
               <div>
-                <h3 class="text-sm font-extrabold text-zinc-900">Celi no WhatsApp</h3>
+                <h3 class="text-[19px] font-extrabold text-zinc-900">Celi no WhatsApp</h3>
                 <p id="txt-whats-conectado" class="text-xs text-zinc-500">Vinculado via Código Rápido</p>
               </div>
             </div>
@@ -444,20 +629,20 @@
           <p class="text-xs text-zinc-500 leading-relaxed">
             Envie áudios ou textos para a Celi (`+55 11 92743-0042`) agendar clientes. Sem precisar de câmera ou QR Code: vincule seu número direto pelo celular com seu código exclusivo.
           </p>
-          <button onclick="abrirModalWhatsappCeli()" class="w-full py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-2xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm">
+          <button onclick="abrirModalWhatsappCeli()" class="w-full py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm">
             <i data-lucide="key-round" class="w-3.5 h-3.5"></i>
             <span>Ver Meu Código / Ativar no WhatsApp</span>
           </button>
         </div>
 
-        <div class="bg-white rounded-[26px] p-5 border border-zinc-200/80 shadow-sm space-y-3.5">
+        <div class="bg-white rounded-[20px] p-5 border border-zinc-200/80 shadow-sm space-y-3.5">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3.5">
-              <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm">
+              <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm">
                 <i data-lucide="calendar-check-2" class="w-6 h-6"></i>
               </div>
               <div>
-                <h3 class="text-sm font-extrabold text-zinc-900">Google & Apple Calendar</h3>
+                <h3 class="text-[19px] font-extrabold text-zinc-900">Google & Apple Calendar</h3>
                 <p id="txt-calendar-email" class="text-xs text-zinc-500">Sincronizado</p>
               </div>
             </div>
@@ -466,23 +651,23 @@
           <p class="text-xs text-zinc-500 leading-relaxed">
             Seus agendamentos aparecem automaticamente na agenda do seu iPhone e Google Calendar.
           </p>
-          <button onclick="abrirModalCalendarios()" class="w-full py-2.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 rounded-2xl text-xs font-bold transition flex items-center justify-center gap-2">
+          <button onclick="abrirModalCalendarios()" class="w-full py-2.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
             <i data-lucide="settings-2" class="w-3.5 h-3.5"></i>
             <span>Configurar E-mail da Agenda</span>
           </button>
         </div>
 
-        <div class="bg-[#EDE9FE] border border-violet-200 rounded-[26px] p-5 space-y-3.5 shadow-sm">
+        <div class="bg-[#F7EBE1] border border-violet-200 rounded-[20px] p-5 space-y-3.5 shadow-sm">
           <div class="flex justify-between items-start">
             <div>
-              <span class="text-[10px] font-extrabold uppercase tracking-wider text-violet-700">Sua Assinatura</span>
-              <h3 class="text-base font-extrabold text-zinc-900">Plano Orbi Pro Mensal</h3>
+              <span class="text-[10px] font-semibold uppercase tracking-[0.18em] text-violet-700">Sua Assinatura</span>
+              <h3 class="text-[21px] font-extrabold text-zinc-900">Plano Orbi Pro Mensal</h3>
               <p class="text-xs text-zinc-600 mt-0.5">Vencimento: <strong id="txt-vencimento-assinatura">Ativo</strong> • R$ 49,90/mês</p>
             </div>
             <span id="badge-status-assinatura" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500 text-white shadow-sm">Em dia ✓</span>
           </div>
 
-          <div class="bg-white/80 rounded-2xl p-3 border border-violet-200/70 flex items-center justify-between text-xs">
+          <div class="bg-white/80 rounded-xl p-3 border border-violet-200/70 flex items-center justify-between text-xs">
             <span class="text-zinc-600 font-medium flex items-center gap-1.5">
               <i data-lucide="lock" class="w-3.5 h-3.5 text-violet-600"></i> Mercado Pago Oficial
             </span>
@@ -490,19 +675,19 @@
           </div>
 
           <div class="grid grid-cols-2 gap-2">
-            <button onclick="abrirModalAssinatura()" class="py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-2xl text-xs font-bold transition shadow-sm">
+            <button onclick="abrirModalAssinatura()" class="py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-xs font-bold transition shadow-sm">
               Pagar / Renovar
             </button>
-            <button onclick="togglePaywall(true)" class="py-2.5 bg-white hover:bg-zinc-50 text-zinc-800 border border-violet-300 rounded-2xl text-xs font-bold transition">
+            <button onclick="togglePaywall(true)" class="py-2.5 bg-white hover:bg-zinc-50 text-zinc-800 border border-violet-300 rounded-xl text-xs font-bold transition">
               Ver Tela de Renovação
             </button>
           </div>
         </div>
 
-        <div class="bg-white rounded-[24px] p-4 border border-zinc-200/70 space-y-3">
+        <div class="bg-white rounded-[18px] p-4 border border-zinc-200/70 space-y-3">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+              <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
                 <i data-lucide="shield-check" class="w-5 h-5"></i>
               </div>
               <div>
@@ -520,7 +705,7 @@
     </main>
 
     <!-- ================= BARRA DE NAVEGAÇÃO INFERIOR ================= -->
-    <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 w-[90%] max-w-[380px] bg-white/95 backdrop-blur-md border border-zinc-200/90 rounded-full p-1.5 shadow-xl flex justify-between items-center z-30">
+    <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 w-[90%] max-w-[380px] bg-[#FFFDF9]/92 backdrop-blur-md border border-[#E2D6C3] rounded-full p-1.5 shadow-xl flex justify-between items-center z-30">
       <button onclick="switchTab('hoje')" id="nav-hoje" class="nav-btn flex-1 py-2.5 rounded-full flex flex-col items-center justify-center gap-0.5 bg-zinc-900 text-white transition">
         <i data-lucide="home" class="w-4 h-4"></i>
         <span class="text-[10px] font-bold">Hoje</span>
@@ -540,17 +725,17 @@
     </nav>
 
     <!-- ================= MODAL 1: VINCULAR CELI NO WHATSAPP ================= -->
-    <div id="modal-whatsapp-celi" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-4">
-      <div class="bg-white w-full max-w-sm rounded-[32px] p-6 space-y-4 shadow-2xl">
+    <div id="modal-whatsapp-celi" class="fixed inset-0 bg-[#2C2623]/55 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-4">
+      <div class="sheet w-full max-w-sm rounded-[26px] p-6 space-y-4">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-600">Conexão Direta pelo Celular</span>
+          <span class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-600">Conexão Direta pelo Celular</span>
           <button onclick="fecharModalWhatsappCeli()" class="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-600">✕</button>
         </div>
 
         <div class="flex items-center gap-3">
-          <img src="/mascote-orbi.png" onerror="this.src='/icon-orbi.png'" class="w-12 h-12 rounded-2xl object-cover shadow-sm">
+          <img src="/mascote-orbi.png" onerror="this.src='/icon-orbi.png'" class="w-12 h-12 rounded-xl object-cover shadow-sm">
           <div>
-            <h3 class="text-base font-extrabold text-zinc-900">Vincular seu WhatsApp</h3>
+            <h3 class="text-[21px] font-extrabold text-zinc-900">Vincular seu WhatsApp</h3>
             <p class="text-[11px] text-zinc-500">Número oficial da Celi: +55 11 92743-0042</p>
           </div>
         </div>
@@ -560,12 +745,12 @@
         </p>
 
         <div>
-          <label class="text-[11px] font-bold text-zinc-700 block mb-1">Seu WhatsApp Profissional (Com DDD)</label>
-          <input id="input-whats-profissional" type="tel" placeholder="Ex: 5511999999999" class="w-full bg-zinc-50 border border-zinc-200 rounded-2xl px-3.5 py-2.5 text-xs font-bold text-zinc-900 focus:outline-none focus:border-emerald-500">
+          <label class="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500 block mb-1">Seu WhatsApp Profissional (Com DDD)</label>
+          <input id="input-whats-profissional" type="tel" placeholder="Ex: 5511999999999" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 text-xs font-bold text-zinc-900 focus:outline-none focus:border-emerald-500">
         </div>
 
-        <div class="bg-emerald-50/80 border-2 border-dashed border-emerald-300 rounded-2xl p-4 text-center space-y-2">
-          <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Seu Código Exclusivo Orbi</p>
+        <div class="bg-emerald-50/80 border-2 border-dashed border-emerald-300 rounded-xl p-4 text-center space-y-2">
+          <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-700">Seu Código Exclusivo Orbi</p>
           <div class="flex items-center justify-center gap-2">
             <span id="txt-codigo-orbi" class="text-2xl font-extrabold tracking-widest text-zinc-900">ORBI-0000</span>
             <button onclick="copiarCodigoOrbi()" class="px-2.5 py-1 rounded-lg bg-white border border-emerald-200 text-[11px] font-bold text-emerald-700 shadow-sm">
@@ -582,13 +767,13 @@
     </div>
 
     <!-- ================= MODAL 2: CONEXÃO DIRETA GOOGLE & APPLE CALENDAR (ACL 1-CLIQUE) ================= -->
-    <div id="modal-calendarios" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-4">
-      <div class="bg-white w-full max-w-sm rounded-[32px] p-6 space-y-4 shadow-2xl">
+    <div id="modal-calendarios" class="fixed inset-0 bg-[#2C2623]/55 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-4">
+      <div class="sheet w-full max-w-sm rounded-[26px] p-6 space-y-4">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-extrabold uppercase tracking-wider text-blue-600">Sincronização Direta (Sem Convites)</span>
+          <span class="text-xs font-semibold uppercase tracking-[0.18em] text-blue-600">Sincronização Direta (Sem Convites)</span>
           <button onclick="fecharModalCalendarios()" class="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-600">✕</button>
         </div>
-        <h3 class="text-base font-extrabold text-zinc-900">Conectar Minha Agenda</h3>
+        <h3 class="text-[21px] font-extrabold text-zinc-900">Conectar Minha Agenda</h3>
         <p class="text-xs text-zinc-500 leading-relaxed">
           Informe o Gmail da sua agenda. A Celi coloca cada atendimento nela em tempo real, sem pop-ups de autorização:
         </p>
@@ -600,7 +785,7 @@
 
         <div class="space-y-2 pt-2 border-t border-zinc-100">
           <label class="text-[11px] font-bold text-zinc-600 block">E-mail conectado na agenda:</label>
-          <input id="input-email-calendar" type="email" placeholder="seuemail@gmail.com" class="w-full bg-zinc-50 border border-zinc-200 rounded-2xl px-4 py-2.5 text-xs font-bold text-zinc-900">
+          <input id="input-email-calendar" type="email" placeholder="seuemail@gmail.com" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-2.5 text-xs font-bold text-zinc-900">
         </div>
 
         <div class="pt-2 border-t border-zinc-100 space-y-2">
@@ -617,14 +802,14 @@
     </div>
 
     <!-- ================= MODAL 3: CHECKOUT DE ASSINATURA (MERCADO PAGO OFICIAL) ================= -->
-    <div id="modal-assinatura" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-4">
-      <div class="bg-white w-full max-w-sm rounded-[32px] p-6 space-y-4 shadow-2xl">
+    <div id="modal-assinatura" class="fixed inset-0 bg-[#2C2623]/55 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-4">
+      <div class="sheet w-full max-w-sm rounded-[26px] p-6 space-y-4">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-extrabold uppercase tracking-wider text-violet-600">Checkout Oficial Mercado Pago</span>
+          <span class="text-xs font-semibold uppercase tracking-[0.18em] text-violet-600">Checkout Oficial Mercado Pago</span>
           <button onclick="fecharModalAssinatura()" class="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-600">✕</button>
         </div>
 
-        <div class="flex justify-between items-center bg-zinc-50 p-3.5 rounded-2xl border border-zinc-200">
+        <div class="flex justify-between items-center bg-zinc-50 p-3.5 rounded-xl border border-zinc-200">
           <div class="flex items-center gap-2.5">
             <img src="/mascote-orbi.png" onerror="this.src='/icon-orbi.png'" class="w-10 h-10 rounded-xl object-cover">
             <div>
@@ -635,14 +820,14 @@
           <span class="text-base font-extrabold text-violet-600">R$ 49,90</span>
         </div>
 
-        <div class="grid grid-cols-2 gap-2 bg-zinc-100 p-1 rounded-2xl text-xs font-bold">
+        <div class="grid grid-cols-2 gap-2 bg-zinc-100 p-1 rounded-xl text-xs font-bold">
           <button onclick="alternarMetodoAssinatura('pix')" id="btn-ass-pix" class="py-2 rounded-xl bg-white text-zinc-900 shadow-sm">💠 Pix (30 dias)</button>
           <button onclick="alternarMetodoAssinatura('cartao')" id="btn-ass-cartao" class="py-2 rounded-xl text-zinc-600">💳 Assinatura Cartão</button>
         </div>
 
         <!-- ABA PIX MENSAL -->
         <div id="area-ass-pix" class="space-y-3 text-center">
-          <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 text-xs text-emerald-950 leading-relaxed">
+          <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 text-xs text-emerald-950 leading-relaxed">
             💠 <strong>Acesso por 30 dias via Pix:</strong> Pague pelo QR Code ou Pix Copia e Cola no ambiente seguro do Mercado Pago com liberação automática.
           </div>
           <button onclick="pagarPixMercadoPago()" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-full text-xs shadow-lg transition flex items-center justify-center gap-2">
@@ -653,7 +838,7 @@
 
         <!-- ABA CARTÃO RECORRENTE -->
         <div id="area-ass-cartao" class="space-y-3 text-center hidden">
-          <div class="bg-violet-50 border border-violet-200 rounded-2xl p-3.5 text-xs text-violet-950 leading-relaxed">
+          <div class="bg-violet-50 border border-violet-200 rounded-xl p-3.5 text-xs text-violet-950 leading-relaxed">
             💳 <strong>Piloto Automático no Cartão:</strong> Ative sua assinatura mensal no Mercado Pago e renove automaticamente todo mês sem se preocupar.
           </div>
           <button onclick="assinarCartaoMercadoPago()" class="w-full py-3.5 bg-zinc-900 hover:bg-zinc-800 text-white font-bold rounded-full text-xs shadow-lg transition flex items-center justify-center gap-2">
@@ -665,12 +850,12 @@
     </div>
 
     <!-- ================= MODAL 4: EDIÇÃO FINANCEIRA DO ATENDIMENTO ================= -->
-    <div id="modal-financeiro" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-4">
-      <div class="bg-white w-full max-w-sm rounded-[32px] p-6 space-y-4 shadow-2xl">
+    <div id="modal-financeiro" class="fixed inset-0 bg-[#2C2623]/55 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-4">
+      <div class="sheet w-full max-w-sm rounded-[26px] p-6 space-y-4">
         <div class="flex items-center justify-between">
           <div>
-            <span class="text-[10px] font-extrabold uppercase tracking-wider text-violet-600">Controle de Caixa</span>
-            <h3 id="fin-titulo-cliente" class="text-base font-extrabold text-zinc-900">Cliente</h3>
+            <span class="text-[10px] font-semibold uppercase tracking-[0.18em] text-violet-600">Controle de Caixa</span>
+            <h3 id="fin-titulo-cliente" class="text-[21px] font-extrabold text-zinc-900">Cliente</h3>
           </div>
           <button onclick="fecharModalFinanceiro()" class="w-9 h-9 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-600">
             <i data-lucide="x" class="w-4 h-4"></i>
@@ -678,21 +863,21 @@
         </div>
 
         <div>
-          <label class="text-xs font-bold text-zinc-700 block mb-1">Valor do Serviço (R$)</label>
-          <input id="fin-input-valor" type="number" step="0.01" placeholder="Ex: 280.00" class="w-full bg-zinc-50 border border-zinc-200 rounded-2xl px-4 py-3 text-base font-extrabold text-zinc-900 focus:outline-none focus:border-violet-500">
+          <label class="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500 block mb-1">Valor do Serviço (R$)</label>
+          <input id="fin-input-valor" type="number" step="0.01" placeholder="Ex: 280.00" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-3 text-base font-extrabold text-zinc-900 focus:outline-none focus:border-violet-500">
         </div>
 
         <div>
-          <label class="text-xs font-bold text-zinc-700 block mb-1.5">Forma de Pagamento</label>
+          <label class="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500 block mb-1.5">Forma de Pagamento</label>
           <div class="grid grid-cols-3 gap-2">
-            <button type="button" onclick="selecionarMetodo('Pix')" id="btn-metodo-Pix" class="py-2.5 rounded-2xl text-xs font-bold border border-zinc-200 bg-zinc-50 text-zinc-700">💠 Pix</button>
-            <button type="button" onclick="selecionarMetodo('Cartão')" id="btn-metodo-Cartão" class="py-2.5 rounded-2xl text-xs font-bold border border-zinc-200 bg-zinc-50 text-zinc-700">💳 Cartão</button>
-            <button type="button" onclick="selecionarMetodo('Dinheiro')" id="btn-metodo-Dinheiro" class="py-2.5 rounded-2xl text-xs font-bold border border-zinc-200 bg-zinc-50 text-zinc-700">💵 Dinheiro</button>
+            <button type="button" onclick="selecionarMetodo('Pix')" id="btn-metodo-Pix" class="py-2.5 rounded-xl text-xs font-bold border border-zinc-200 bg-zinc-50 text-zinc-700">💠 Pix</button>
+            <button type="button" onclick="selecionarMetodo('Cartão')" id="btn-metodo-Cartão" class="py-2.5 rounded-xl text-xs font-bold border border-zinc-200 bg-zinc-50 text-zinc-700">💳 Cartão</button>
+            <button type="button" onclick="selecionarMetodo('Dinheiro')" id="btn-metodo-Dinheiro" class="py-2.5 rounded-xl text-xs font-bold border border-zinc-200 bg-zinc-50 text-zinc-700">💵 Dinheiro</button>
           </div>
         </div>
 
         <div class="pt-1">
-          <label class="flex items-center justify-between bg-emerald-50/80 border border-emerald-200 rounded-2xl p-3.5 cursor-pointer">
+          <label class="flex items-center justify-between bg-emerald-50/80 border border-emerald-200 rounded-xl p-3.5 cursor-pointer">
             <div>
               <p class="text-xs font-bold text-emerald-950">Marcar como Pago & Concluído</p>
               <p class="text-[11px] text-emerald-700">Soma imediatamente no seu Caixa Recebido</p>
@@ -708,40 +893,40 @@
     </div>
 
     <!-- ================= MODAL 5: EDITAR DETALHES DO AGENDAMENTO ================= -->
-    <div id="modal-editar-agendamento" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-4">
-      <div class="bg-white w-full max-w-sm rounded-[32px] p-6 space-y-3.5 shadow-2xl max-h-[92vh] overflow-y-auto">
+    <div id="modal-editar-agendamento" class="fixed inset-0 bg-[#2C2623]/55 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-4">
+      <div class="sheet w-full max-w-sm rounded-[26px] p-6 space-y-3.5 max-h-[92vh] overflow-y-auto">
         <div class="flex items-center justify-between">
           <div>
-            <span class="text-[10px] font-extrabold uppercase tracking-wider text-violet-600">Sincroniza com Google & iPhone</span>
-            <h3 class="text-base font-extrabold text-zinc-900">Editar Atendimento ✏️</h3>
+            <span class="text-[10px] font-semibold uppercase tracking-[0.18em] text-violet-600">Sincroniza com Google & iPhone</span>
+            <h3 class="text-[21px] font-extrabold text-zinc-900">Editar Atendimento ✏️</h3>
           </div>
           <button onclick="fecharModalEditarAgendamento()" class="w-9 h-9 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-600">✕</button>
         </div>
 
         <div>
-          <label class="text-xs font-bold text-zinc-700 block mb-1">Nome da Cliente</label>
-          <input id="edit-cliente" type="text" placeholder="Digite o nome da cliente..." class="w-full bg-zinc-50 border border-zinc-200 rounded-2xl px-4 py-3 text-xs font-extrabold text-zinc-900 focus:outline-none focus:border-violet-500">
+          <label class="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500 block mb-1">Nome da Cliente</label>
+          <input id="edit-cliente" type="text" placeholder="Digite o nome da cliente..." class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-3 text-xs font-extrabold text-zinc-900 focus:outline-none focus:border-violet-500">
         </div>
 
         <div>
-          <label class="text-xs font-bold text-zinc-700 block mb-1">Serviço</label>
-          <input id="edit-servico" type="text" placeholder="Ex: Penteado & Maquiagem" class="w-full bg-zinc-50 border border-zinc-200 rounded-2xl px-4 py-3 text-xs font-semibold text-zinc-900 focus:outline-none focus:border-violet-500">
+          <label class="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500 block mb-1">Serviço</label>
+          <input id="edit-servico" type="text" placeholder="Ex: Penteado & Maquiagem" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-3 text-xs font-semibold text-zinc-900 focus:outline-none focus:border-violet-500">
         </div>
 
         <div class="grid grid-cols-2 gap-2.5">
           <div>
-            <label class="text-xs font-bold text-zinc-700 block mb-1">Data</label>
-            <input id="edit-data" type="date" class="w-full bg-zinc-50 border border-zinc-200 rounded-2xl px-3.5 py-2.5 text-xs font-bold text-zinc-900">
+            <label class="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500 block mb-1">Data</label>
+            <input id="edit-data" type="date" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 text-xs font-bold text-zinc-900">
           </div>
           <div>
-            <label class="text-xs font-bold text-zinc-700 block mb-1">Horário</label>
-            <input id="edit-horario" type="time" class="w-full bg-zinc-50 border border-zinc-200 rounded-2xl px-3.5 py-2.5 text-xs font-bold text-zinc-900">
+            <label class="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500 block mb-1">Horário</label>
+            <input id="edit-horario" type="time" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 text-xs font-bold text-zinc-900">
           </div>
         </div>
 
         <div>
-          <label class="text-xs font-bold text-zinc-700 block mb-1">Local / Endereço</label>
-          <input id="edit-endereco" type="text" placeholder="Endereço do atendimento" class="w-full bg-zinc-50 border border-zinc-200 rounded-2xl px-4 py-2.5 text-xs text-zinc-900 focus:outline-none focus:border-violet-500">
+          <label class="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500 block mb-1">Local / Endereço</label>
+          <input id="edit-endereco" type="text" placeholder="Endereço do atendimento" class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-2.5 text-xs text-zinc-900 focus:outline-none focus:border-violet-500">
         </div>
 
         <div class="flex gap-2 pt-2">
@@ -754,12 +939,12 @@
     </div>
 
     <!-- ================= MODAL 6: CONFIRMAR EXCLUSÃO ================= -->
-    <div id="modal-excluir" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-      <div class="bg-white w-full max-w-xs rounded-[28px] p-6 text-center space-y-4 shadow-2xl">
-        <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
+    <div id="modal-excluir" class="fixed inset-0 bg-[#2C2623]/55 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+      <div class="sheet w-full max-w-xs rounded-[22px] p-6 text-center space-y-4">
+        <div class="w-12 h-12 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
           <i data-lucide="trash-2" class="w-6 h-6"></i>
         </div>
-        <h3 class="text-base font-extrabold text-zinc-900">Cancelar Agendamento?</h3>
+        <h3 class="text-[21px] font-extrabold text-zinc-900">Cancelar Agendamento?</h3>
         <p class="text-xs text-zinc-500 leading-relaxed">
           Isso apagará o compromisso do aplicativo, do seu <strong>Google Calendar</strong> e do <strong>iPhone</strong>.
         </p>
@@ -771,13 +956,13 @@
     </div>
 
     <!-- ================= MODAL 7: NOVO AGENDAMENTO ================= -->
-    <div id="modal-novo" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center">
+    <div id="modal-novo" class="fixed inset-0 bg-[#2C2623]/55 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center">
       <div class="app-bg w-full max-w-md rounded-t-[36px] sm:rounded-[36px] p-6 space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto">
         <div class="flex items-center justify-between">
           <button onclick="fecharModalNovo()" class="w-10 h-10 rounded-full bg-white border border-zinc-200 flex items-center justify-center text-zinc-700">
             <i data-lucide="x" class="w-4 h-4"></i>
           </button>
-          <h3 class="text-sm font-bold text-zinc-900">Novo Agendamento</h3>
+          <h3 class="text-[19px] font-bold text-zinc-900">Novo Agendamento</h3>
           <button onclick="salvarNovoCompromisso()" class="w-10 h-10 rounded-full bg-zinc-900 text-white flex items-center justify-center">
             <i data-lucide="check" class="w-4 h-4"></i>
           </button>
@@ -785,33 +970,33 @@
 
         <div class="space-y-3 pt-1">
           <div>
-            <label class="text-xs font-bold text-zinc-700 block mb-1">Nome da Cliente</label>
-            <input id="novo-cliente" type="text" placeholder="Ex: Juliana Martins" class="w-full bg-white border border-zinc-200/90 rounded-2xl px-4 py-3 text-xs text-zinc-900 focus:outline-none focus:border-violet-500">
+            <label class="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500 block mb-1">Nome da Cliente</label>
+            <input id="novo-cliente" type="text" placeholder="Ex: Juliana Martins" class="w-full bg-white border border-zinc-200/90 rounded-xl px-4 py-3 text-xs text-zinc-900 focus:outline-none focus:border-violet-500">
           </div>
 
           <div>
-            <label class="text-xs font-bold text-zinc-700 block mb-1">Serviço</label>
-            <input id="novo-servico" type="text" placeholder="Ex: Penteado & Maquiagem" class="w-full bg-white border border-zinc-200/90 rounded-2xl px-4 py-3 text-xs text-zinc-900 focus:outline-none focus:border-violet-500">
+            <label class="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500 block mb-1">Serviço</label>
+            <input id="novo-servico" type="text" placeholder="Ex: Penteado & Maquiagem" class="w-full bg-white border border-zinc-200/90 rounded-xl px-4 py-3 text-xs text-zinc-900 focus:outline-none focus:border-violet-500">
           </div>
 
           <div class="grid grid-cols-3 gap-2">
             <div>
-              <label class="text-xs font-bold text-zinc-700 block mb-1">Data</label>
-              <input id="novo-data" type="date" class="w-full bg-white border border-zinc-200/90 rounded-2xl px-3 py-3 text-xs text-zinc-900">
+              <label class="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500 block mb-1">Data</label>
+              <input id="novo-data" type="date" class="w-full bg-white border border-zinc-200/90 rounded-xl px-3 py-3 text-xs text-zinc-900">
             </div>
             <div>
-              <label class="text-xs font-bold text-zinc-700 block mb-1">Horário</label>
-              <input id="novo-horario" type="time" value="14:00" class="w-full bg-white border border-zinc-200/90 rounded-2xl px-3 py-3 text-xs text-zinc-900">
+              <label class="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500 block mb-1">Horário</label>
+              <input id="novo-horario" type="time" value="14:00" class="w-full bg-white border border-zinc-200/90 rounded-xl px-3 py-3 text-xs text-zinc-900">
             </div>
             <div>
-              <label class="text-xs font-bold text-zinc-700 block mb-1">Valor (R$)</label>
-              <input id="novo-valor" type="number" placeholder="250" class="w-full bg-white border border-zinc-200/90 rounded-2xl px-3 py-3 text-xs text-zinc-900">
+              <label class="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500 block mb-1">Valor (R$)</label>
+              <input id="novo-valor" type="number" placeholder="250" class="w-full bg-white border border-zinc-200/90 rounded-xl px-3 py-3 text-xs text-zinc-900">
             </div>
           </div>
 
           <div>
-            <label class="text-xs font-bold text-zinc-700 block mb-1">Local / Endereço (Gera Rota Maps)</label>
-            <input id="novo-endereco" type="text" placeholder="Ex: Rua das Flores, 120" class="w-full bg-white border border-zinc-200/90 rounded-2xl px-4 py-3 text-xs text-zinc-900">
+            <label class="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500 block mb-1">Local / Endereço (Gera Rota Maps)</label>
+            <input id="novo-endereco" type="text" placeholder="Ex: Rua das Flores, 120" class="w-full bg-white border border-zinc-200/90 rounded-xl px-4 py-3 text-xs text-zinc-900">
           </div>
         </div>
 
@@ -823,11 +1008,11 @@
 
     <!-- ================= MODAL 8: PAYWALL (ASSINATURA VENCIDA) ================= -->
     <div id="modal-paywall" class="fixed inset-0 bg-zinc-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-6">
-      <div class="bg-white rounded-[32px] max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
+      <div class="sheet rounded-[26px] max-w-sm w-full p-6 text-center space-y-4">
         <img src="/mascote-orbi.png" onerror="this.src='/icon-orbi.png'" class="w-20 h-20 rounded-3xl object-cover mx-auto shadow-lg orbi-alive">
-        <h3 class="text-lg font-extrabold text-zinc-900">Renove seu acesso ao Orbi ✨</h3>
+        <h3 class="text-[24px] font-extrabold text-zinc-900">Renove seu acesso ao Orbi ✨</h3>
         <p class="text-xs text-zinc-500 leading-relaxed">Para a Celi continuar agendando seus horários pelo WhatsApp, escolha como prefere renovar:</p>
-        <div class="bg-zinc-50 p-4 rounded-2xl border border-zinc-200 text-left flex justify-between items-center">
+        <div class="bg-zinc-50 p-4 rounded-xl border border-zinc-200 text-left flex justify-between items-center">
           <div>
             <p class="text-xs font-bold text-zinc-900">Plano Orbi Pro</p>
             <p class="text-[11px] text-zinc-500">WhatsApp IA + Agenda + Finanças</p>
@@ -849,15 +1034,15 @@
     </div>
 
     <!-- ================= MODAL 9: PAINEL DE BLINDAGEM RLS ================= -->
-    <div id="modal-seguranca-rls" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-4">
-      <div class="bg-white w-full max-w-md rounded-[32px] p-6 space-y-4 shadow-2xl">
+    <div id="modal-seguranca-rls" class="fixed inset-0 bg-[#2C2623]/55 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-4">
+      <div class="sheet w-full max-w-md rounded-[26px] p-6 space-y-4">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-600">Segurança Multi-Usuário (RLS)</span>
+          <span class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-600">Segurança Multi-Usuário (RLS)</span>
           <button onclick="fecharModalSegurancaRLS()" class="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-600">✕</button>
         </div>
 
-        <h3 class="text-base font-extrabold text-zinc-900">Dados Isolados da Sua Conta</h3>
-        <div class="bg-zinc-50 border border-zinc-200 rounded-2xl p-3.5 space-y-1.5 text-xs">
+        <h3 class="text-[21px] font-extrabold text-zinc-900">Dados Isolados da Sua Conta</h3>
+        <div class="bg-zinc-50 border border-zinc-200 rounded-xl p-3.5 space-y-1.5 text-xs">
           <div class="flex justify-between">
             <span class="text-zinc-500">Seu ID Único (UUID):</span>
             <span id="rls-user-id" class="font-mono font-bold text-zinc-800 text-[10px]">...</span>
@@ -954,10 +1139,10 @@
     let indiceDicaOrbi = 0;
 
     const estilosCores = {
-      pink:   { bg: "bg-[#FCE7F3]", border: "border-pink-200/80", badge: "bg-pink-500/15 text-pink-900" },
-      blue:   { bg: "bg-[#E0F2FE]", border: "border-sky-200/80",  badge: "bg-sky-500/15 text-sky-900" },
-      purple: { bg: "bg-[#EDE9FE]", border: "border-violet-200/80", badge: "bg-violet-500/15 text-violet-900" },
-      mint:   { bg: "bg-[#DCFCE7]", border: "border-emerald-200/80", badge: "bg-emerald-500/15 text-emerald-900" }
+      pink:   { bg: "bg-white", border: "border-[#E8DFD1]", badge: "bg-[#F9ECE6] text-[#8C432F] border border-[#EDC7B5]", spine: "#D99A86" },
+      blue:   { bg: "bg-white", border: "border-[#E8DFD1]", badge: "bg-[#EEF2F4] text-[#374C58] border border-[#CBD7DD]", spine: "#7C98A8" },
+      purple: { bg: "bg-white", border: "border-[#E8DFD1]", badge: "bg-[#FBF5E6] text-[#7A5710] border border-[#EBD493]", spine: "#C5A059" },
+      mint:   { bg: "bg-white", border: "border-[#E8DFD1]", badge: "bg-[#EEF3E8] text-[#475C35] border border-[#C8D8B6]", spine: "#6B8A4F" }
     };
 
     const paletaRotativa = ["pink", "blue", "purple"];
@@ -1371,14 +1556,14 @@
 
       const strip = document.getElementById("strip-datas-agenda");
       strip.innerHTML = `
-        <button onclick="mudarFiltroData('todas')" class="px-4 py-2.5 rounded-2xl text-xs font-bold shrink-0 transition ${dataSelecionada === 'todas' ? 'bg-zinc-900 text-white shadow-md' : 'bg-white text-zinc-600 border border-zinc-200'}">
+        <button onclick="mudarFiltroData('todas')" class="px-4 py-2.5 rounded-xl text-xs font-bold shrink-0 transition ${dataSelecionada === 'todas' ? 'bg-zinc-900 text-white shadow-md' : 'bg-white text-zinc-600 border border-zinc-200'}">
           Todas as Datas
         </button>
       `;
       datasUnicas.forEach(dt => {
         const ativo = dataSelecionada === dt;
         strip.innerHTML += `
-          <button onclick="mudarFiltroData('${dt}')" class="px-4 py-2.5 rounded-2xl text-xs font-bold shrink-0 transition ${ativo ? 'bg-zinc-900 text-white shadow-md' : 'bg-white text-zinc-700 border border-zinc-200'}">
+          <button onclick="mudarFiltroData('${dt}')" class="px-4 py-2.5 rounded-xl text-xs font-bold shrink-0 transition ${ativo ? 'bg-zinc-900 text-white shadow-md' : 'bg-white text-zinc-700 border border-zinc-200'}">
             ${formatarDataCurta(dt)}
           </button>
         `;
@@ -1472,8 +1657,8 @@
 
       if (listaFiltrada.length === 0) {
         container.innerHTML = `
-          <div class="bg-white/85 border border-zinc-200/70 rounded-[28px] p-7 text-center space-y-2.5">
-            <img src="/mascote-orbi.png" onerror="this.src='/icon-orbi.png'" class="w-14 h-14 rounded-2xl mx-auto object-cover orbi-alive shadow-sm">
+          <div class="paper-card p-7 text-center space-y-2.5">
+            <img src="/mascote-orbi.png" onerror="this.src='/icon-orbi.png'" class="w-14 h-14 rounded-xl mx-auto object-cover orbi-alive shadow-sm">
             <p class="text-sm font-bold text-zinc-800">Sua lista está vazia por aqui!</p>
             <p class="text-xs text-zinc-500">Toque no botão <strong>+</strong> no topo ou mande um áudio para a Celi no WhatsApp para criar seus agendamentos.</p>
           </div>
@@ -1489,60 +1674,61 @@
         const nomeGenerico = item.cliente.toLowerCase().includes("whatsapp") || item.cliente.toLowerCase() === "cliente";
 
         const card = document.createElement("div");
-        card.className = `${paleta.bg} ${paleta.border} border rounded-[28px] p-5 shadow-sm transition relative`;
+        card.className = `planner-card spine-card paper-card ${item.concluido ? 'is-done' : ''} transition relative`;
+        card.style.setProperty('--spine', paleta.spine);
 
         card.innerHTML = `
-          <div class="flex justify-between items-start gap-2">
-            <div class="min-w-0 flex-1">
-              <div class="flex items-center gap-1.5 flex-wrap">
-                <span class="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-zinc-900 text-white">
-                  📅 ${formatarDataCurta(item.data_agendamento)} • ${esc(item.horario)}
-                </span>
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${paleta.badge}">
-                  ${item.concluido ? 'Pago ✓' : esc(item.status)}
-                </span>
+          <div class="planner-time-col">
+            <span class="planner-time">${esc(item.horario)}</span>
+            <span class="planner-date">${formatarDataCurta(item.data_agendamento)}</span>
+          </div>
+
+          <div class="flex-1 min-w-0 p-4 pl-5">
+            <div class="flex justify-between items-start gap-2">
+              <div class="min-w-0 flex-1">
+                <span class="badge ${paleta.badge}">${item.concluido ? 'Pago ✓' : esc(item.status)}</span>
+
+                <div onclick="abrirModalEditarAgendamento('${item.id}')" class="group cursor-pointer mt-2 inline-flex items-center gap-1.5 flex-wrap">
+                  <h4 class="text-[21px] leading-tight text-zinc-900 group-hover:text-violet-700 transition">
+                    ${esc(item.cliente)}
+                  </h4>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold flex items-center gap-1 ${nomeGenerico ? 'bg-amber-200 text-amber-950 animate-pulse' : 'border border-dashed border-[#D8CBB6] text-zinc-500 group-hover:border-[#C5A059]'}">
+                    ✏️ ${nomeGenerico ? 'Colocar Nome' : 'Editar'}
+                  </span>
+                </div>
+
+                <p class="text-xs font-medium text-zinc-600 mt-0.5">${esc(item.servico)}</p>
               </div>
 
-              <div onclick="abrirModalEditarAgendamento('${item.id}')" class="group cursor-pointer mt-2.5 inline-flex items-center gap-1.5 flex-wrap">
-                <h4 class="text-base font-extrabold text-zinc-900 group-hover:text-violet-700 transition">
-                  ${esc(item.cliente)}
-                </h4>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${nomeGenerico ? 'bg-amber-300/90 text-amber-950 animate-pulse' : 'bg-white/80 text-zinc-600'} flex items-center gap-1">
-                  ✏️ ${nomeGenerico ? 'Colocar Nome' : 'Editar'}
-                </span>
-              </div>
-
-              <p class="text-xs font-semibold text-zinc-600">${esc(item.servico)}</p>
+              <button onclick="alternarConcluido('${item.id}')" title="Confirmar pagamento/conclusão" class="stamp-btn ${item.concluido ? 'is-on' : ''}">
+                <i data-lucide="${item.concluido ? 'check' : 'circle'}" class="w-5 h-5"></i>
+              </button>
             </div>
 
-            <button onclick="alternarConcluido('${item.id}')" title="Confirmar pagamento/conclusão" class="w-10 h-10 rounded-full flex items-center justify-center transition shadow-sm shrink-0 ${item.concluido ? 'bg-emerald-500 text-white' : 'bg-white/90 text-zinc-700 hover:bg-white'}">
-              <i data-lucide="${item.concluido ? 'check' : 'circle'}" class="w-5 h-5"></i>
-            </button>
-          </div>
+            <div class="mt-3.5 flex flex-wrap items-center gap-2">
+              <button onclick="abrirModalFinanceiro('${item.id}')" class="px-3.5 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition ${temValor ? 'bg-[#FBF5E6] text-[#5E440F] border border-[#EBD493] hover:bg-[#F5E8C3]' : 'bg-[#EBD493] text-amber-950 animate-pulse'}">
+                <i data-lucide="circle-dollar-sign" class="w-3.5 h-3.5"></i> ${temValor ? 'R$ ' + Number(item.valor).toFixed(2).replace('.', ',') : 'Definir Valor R$'}
+              </button>
+              ${item.concluido ? `<span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 border border-emerald-200 text-emerald-800">✓ Recebido via ${esc(item.forma_pagamento || 'Pix')}</span>` : ''}
+            </div>
 
-          <div class="mt-3.5 flex flex-wrap items-center gap-2">
-            <button onclick="abrirModalFinanceiro('${item.id}')" class="px-3.5 py-1.5 rounded-full text-xs font-extrabold flex items-center gap-1.5 shadow-sm transition ${temValor ? 'bg-white/90 text-zinc-900 hover:bg-white' : 'bg-[#FDE047] text-amber-950 animate-pulse'}">
-              💰 ${temValor ? 'R$ ' + Number(item.valor).toFixed(2).replace('.', ',') : 'Definir Valor R$'}
-            </button>
-            ${item.concluido ? `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-900">✓ Recebido via ${esc(item.forma_pagamento || 'Pix')}</span>` : ''}
-          </div>
-
-          <div class="mt-4 pt-3 border-t border-black/5 flex items-center justify-between gap-2">
-            ${mostrarMapa ? `
-              <div class="flex items-center gap-1.5 text-xs font-medium text-zinc-700 truncate">
-                <i data-lucide="map-pin" class="w-3.5 h-3.5 shrink-0 text-zinc-600"></i>
-                <span class="truncate">${esc(item.endereco)}</span>
-              </div>
-              <div class="flex items-center gap-1.5 shrink-0">
-                <a href="${linkMaps}" target="_blank" class="px-3.5 py-1.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center gap-1 shadow-sm">
-                  <i data-lucide="navigation" class="w-3 h-3"></i> Rota
-                </a>
-                <button onclick="abrirModalExcluir('${item.id}')" class="w-7 h-7 rounded-full bg-white/80 hover:bg-rose-100 text-zinc-500 hover:text-rose-600 flex items-center justify-center text-xs font-bold">✕</button>
-              </div>
-            ` : `
-              <button onclick="abrirModalEditarAgendamento('${item.id}')" class="text-xs text-zinc-600 hover:underline">📍 + Adicionar endereço</button>
-              <button onclick="abrirModalExcluir('${item.id}')" class="text-xs font-bold text-rose-600 hover:underline">Cancelar</button>
-            `}
+            <div class="mt-3.5 pt-3 border-t border-dashed border-[#E2D6C3] flex items-center justify-between gap-2">
+              ${mostrarMapa ? `
+                <div class="flex items-center gap-1.5 text-xs font-medium text-zinc-600 truncate">
+                  <i data-lucide="map-pin" class="w-3.5 h-3.5 shrink-0 text-[#B5654A]"></i>
+                  <span class="truncate">${esc(item.endereco)}</span>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <a href="${linkMaps}" target="_blank" class="px-3.5 py-1.5 rounded-full border border-[#C5A059] text-[#7A5710] bg-white hover:bg-[#FBF5E6] text-xs font-bold flex items-center gap-1">
+                    <i data-lucide="navigation" class="w-3 h-3"></i> Rota
+                  </a>
+                  <button onclick="abrirModalExcluir('${item.id}')" class="w-7 h-7 rounded-full border border-[#E8DFD1] bg-white hover:bg-rose-50 text-zinc-400 hover:text-rose-600 flex items-center justify-center text-xs font-bold">✕</button>
+                </div>
+              ` : `
+                <button onclick="abrirModalEditarAgendamento('${item.id}')" class="text-xs text-zinc-500 hover:text-zinc-800 hover:underline">📍 + Adicionar endereço</button>
+                <button onclick="abrirModalExcluir('${item.id}')" class="text-xs font-semibold text-rose-600 hover:underline">Cancelar</button>
+              `}
+            </div>
           </div>
         `;
         container.appendChild(card);
@@ -1557,27 +1743,29 @@
         const paleta = estilosCores[item.concluido ? 'mint' : item.cor] || estilosCores.purple;
         const temValor = item.valor !== null && item.valor > 0;
         const row = document.createElement("div");
-        row.className = "flex gap-3 items-start";
+        row.className = "tl-row flex items-stretch";
         row.innerHTML = `
-          <div class="w-14 pt-2 text-right shrink-0">
-            <span class="text-xs font-extrabold text-zinc-800 block">${esc(item.horario)}</span>
-            <span class="text-[10px] font-semibold text-zinc-400">${formatarDataCurta(item.data_agendamento)}</span>
+          <div class="w-[54px] pt-3.5 text-right shrink-0 pr-2.5">
+            <span class="planner-time block" style="font-size:15px">${esc(item.horario)}</span>
+            <span class="planner-date block mt-1.5">${formatarDataCurta(item.data_agendamento)}</span>
           </div>
-          <div class="flex flex-col items-center pt-2.5">
-            <span class="w-2.5 h-2.5 rounded-full bg-violet-600 ring-4 ring-violet-100"></span>
-            <span class="w-0.5 h-16 bg-zinc-200 mt-1"></span>
+          <div class="flex flex-col items-center pt-4 w-4 shrink-0">
+            <span class="w-2.5 h-2.5 rounded-full bg-white border-2 ${item.concluido ? 'border-emerald-600' : 'border-[#C5A059]'} z-10"></span>
+            <span class="tl-line flex-1 w-px bg-[#DCCFBB] -mt-0.5"></span>
           </div>
-          <div class="flex-1 ${paleta.bg} ${paleta.border} border rounded-[22px] p-3.5 shadow-sm">
-            <div class="flex justify-between items-center gap-2">
-              <h4 onclick="abrirModalEditarAgendamento('${item.id}')" class="text-xs font-extrabold text-zinc-900 cursor-pointer hover:underline">${esc(item.cliente)} — ${esc(item.servico)}</h4>
-              <button onclick="abrirModalEditarAgendamento('${item.id}')" class="text-[11px] font-bold text-violet-700 hover:underline shrink-0">✏️ Editar</button>
-            </div>
-            <p class="text-[11px] text-zinc-600 mt-0.5">${esc(item.endereco || 'Local a definir')}</p>
-            <div class="mt-2 flex items-center justify-between">
-              <button onclick="abrirModalFinanceiro('${item.id}')" class="text-[11px] font-bold ${temValor ? 'text-zinc-800' : 'text-amber-900 bg-amber-300/70 px-2 py-0.5 rounded-full'}">
-                ${temValor ? 'R$ ' + Number(item.valor).toFixed(2).replace('.', ',') : '💰 Definir Valor'}
-              </button>
-              <span class="text-[10px] font-bold ${item.concluido ? 'text-emerald-700' : 'text-zinc-500'}">${item.concluido ? '✓ Pago' : esc(item.status)}</span>
+          <div class="flex-1 min-w-0 pb-4 pl-3">
+            <div class="spine-card paper-card p-3.5 pl-4" style="--spine:${paleta.spine}">
+              <div class="flex justify-between items-center gap-2">
+                <h4 onclick="abrirModalEditarAgendamento('${item.id}')" class="text-[17px] leading-snug text-zinc-900 cursor-pointer hover:underline">${esc(item.cliente)} — ${esc(item.servico)}</h4>
+                <button onclick="abrirModalEditarAgendamento('${item.id}')" class="text-[11px] font-semibold text-violet-700 hover:underline shrink-0">✏️ Editar</button>
+              </div>
+              <p class="text-[11px] text-zinc-500 mt-0.5">${esc(item.endereco || 'Local a definir')}</p>
+              <div class="mt-2.5 flex items-center justify-between">
+                <button onclick="abrirModalFinanceiro('${item.id}')" class="text-[11px] font-bold ${temValor ? 'text-zinc-800' : 'text-amber-900 bg-amber-200 px-2 py-0.5 rounded-full'}">
+                  ${temValor ? 'R$ ' + Number(item.valor).toFixed(2).replace('.', ',') : '💰 Definir Valor'}
+                </button>
+                <span class="badge ${paleta.badge}">${item.concluido ? '✓ Pago' : esc(item.status)}</span>
+              </div>
             </div>
           </div>
         `;
@@ -1608,7 +1796,7 @@
               <p class="text-[11px] text-zinc-400">${formatarDataBR(item.data_agendamento)} às ${esc(item.horario)} • ${item.concluido ? 'Pago (' + esc(item.forma_pagamento || 'Pix') + ')' : 'A receber'}</p>
             </div>
           </div>
-          <button onclick="abrirModalFinanceiro('${item.id}')" class="shrink-0 text-xs font-extrabold px-3 py-1.5 rounded-full ${temValor ? (item.concluido ? 'bg-emerald-50 text-emerald-700' : 'bg-zinc-100 text-zinc-800') : 'bg-[#FDE047] text-amber-950'}">
+          <button onclick="abrirModalFinanceiro('${item.id}')" class="shrink-0 text-xs font-extrabold px-3 py-1.5 rounded-full ${temValor ? (item.concluido ? 'bg-emerald-50 text-emerald-700' : 'bg-zinc-100 text-zinc-800') : 'bg-[#EBD493] text-amber-950'}">
             ${temValor ? 'R$ ' + Number(item.valor).toFixed(2).replace('.', ',') : 'Definir R$'}
           </button>
         `;
@@ -1627,7 +1815,7 @@
       box.innerHTML = "";
       tarefas.forEach(t => {
         const item = document.createElement("div");
-        item.className = "bg-white border border-zinc-200/80 rounded-2xl p-3.5 flex items-center justify-between shadow-sm";
+        item.className = "bg-white border border-zinc-200/80 rounded-xl p-3.5 flex items-center justify-between shadow-sm";
         item.innerHTML = `
           <label class="flex items-center gap-3 cursor-pointer flex-1">
             <input type="checkbox" ${t.feita ? 'checked' : ''} onchange="toggleTarefa(${t.id})" class="w-4 h-4 accent-zinc-900 rounded">
@@ -1727,9 +1915,9 @@
       ["Pix", "Cartão", "Dinheiro"].forEach(m => {
         const btn = document.getElementById(`btn-metodo-${m}`);
         if (m === metodo) {
-          btn.className = "py-2.5 rounded-2xl text-xs font-extrabold border-2 border-zinc-900 bg-zinc-900 text-white shadow-sm";
+          btn.className = "py-2.5 rounded-xl text-xs font-extrabold border-2 border-zinc-900 bg-zinc-900 text-white shadow-sm";
         } else {
-          btn.className = "py-2.5 rounded-2xl text-xs font-bold border border-zinc-200 bg-zinc-50 text-zinc-700";
+          btn.className = "py-2.5 rounded-xl text-xs font-bold border border-zinc-200 bg-zinc-50 text-zinc-700";
         }
       });
     }
