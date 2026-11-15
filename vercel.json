@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/agenda/:uid([0-9a-fA-F-]{36}).ics",
+      "destination": "https://agenda-larissa-n8n.ufeee7.easypanel.host/webhook/agenda-iphone?uid=:uid"
+    }
+  ]
+}
