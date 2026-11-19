@@ -309,6 +309,51 @@
     .hint svg.lucide { width: 16px; height: 16px; color: var(--accent); }
     .hint:empty { display: none; }
 
+    /* ================= PRIMEIRO ACESSO ================= */
+    .boas-vindas li { display: flex; gap: 14px; align-items: flex-start; font-size: 16px; color: var(--ink-2); }
+    .boas-vindas li + li { margin-top: 16px; }
+    .boas-vindas .ic { width: 40px; height: 40px; border-radius: 12px; background: var(--accent-soft); color: var(--accent); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .boas-vindas b { display: block; color: var(--ink); font-weight: 600; }
+    .pontos { display: flex; gap: 6px; }
+    .pontos span { width: 8px; height: 8px; border-radius: 9px; background: var(--line-strong); transition: all .25s ease; }
+    .pontos span.on { width: 22px; background: var(--accent); }
+    .onb-topo { display: flex; align-items: center; justify-content: space-between; margin-bottom: 26px; }
+    .espera { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--muted); }
+    .espera i, .girando { animation: girar 1s linear infinite; }
+    @keyframes girar { to { transform: rotate(360deg); } }
+    .sucesso { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 14px; background: var(--success-soft); color: var(--success); font-weight: 600; }
+
+    /* ================= CALENDÁRIOS ================= */
+    .prov { display: flex; align-items: center; gap: 14px; width: 100%; padding: 14px 16px; border: 0; background: none; text-align: left; }
+    .prov + .prov { border-top: 1px solid var(--line); }
+    .prov-ic { width: 42px; height: 42px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; background: var(--surface-2); color: var(--ink); }
+    .ag { padding: 14px 16px; }
+    .ag + .ag { border-top: 1px solid var(--line); }
+    .ag-topo { display: flex; align-items: center; gap: 12px; }
+    .ag-status { font-size: 14px; color: var(--muted); margin-top: 2px; }
+    .ag-status.erro { color: var(--danger); }
+    .ag-acoes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .switch-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; font-size: 14px; color: var(--ink-2); cursor: pointer; }
+    .switch { position: relative; width: 46px; height: 28px; flex-shrink: 0; }
+    .switch input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; z-index: 1; }
+    .switch span { position: absolute; inset: 0; border-radius: 99px; background: var(--line-strong); transition: background-color .2s ease; }
+    .switch span::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 99px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.2); transition: transform .2s ease; }
+    .switch input:checked + span { background: var(--accent); }
+    .switch input:checked + span::after { transform: translateX(18px); }
+    .switch input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .passos { counter-reset: passo; }
+    .passos li { display: flex; gap: 12px; align-items: flex-start; }
+    .passos li + li { margin-top: 14px; }
+    .passos li::before { counter-increment: passo; content: counter(passo); width: 26px; height: 26px; border-radius: 99px; flex-shrink: 0; background: var(--accent); color: var(--on-accent); font-size: 14px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
+    .caminho { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-top: 6px; }
+    .caminho span { font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: 8px; background: var(--surface-2); color: var(--ink-2); }
+    .caminho svg.lucide { width: 14px; height: 14px; color: var(--muted); }
+    .chip-origem { min-height: 24px; padding: 0 8px; font-size: 12px; background: var(--surface-2); color: var(--ink-2); }
+    .chip-origem svg.lucide { width: 13px; height: 13px; }
+    .aviso { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 14px; background: var(--accent-soft); color: var(--ink-2); font-size: 14px; }
+    .aviso svg.lucide { color: var(--accent); margin-top: 1px; }
+    .input[disabled] { opacity: .6; }
+
     /* ================= CONTA ================= */
     .list-card > * + * { border-top: 1px solid var(--line); }
     .setting { display: flex; align-items: center; gap: 14px; padding: 16px; }
@@ -404,58 +449,140 @@
   <!-- ================= ENTRAR / CRIAR CONTA ================= -->
   <div id="auth-screen" class="auth">
     <div class="auth-inner">
-      <div class="brand-row">
-        <svg aria-hidden="true"><use href="#logo-orbi"/></svg>
-        <span class="brand" style="font-size:30px">Orbi Studio</span>
-      </div>
 
-      <div style="margin:36px 0 28px">
-        <h1 class="t-title">Sua agenda, suas rotas e seu caixa no mesmo lugar</h1>
-        <p class="t-body" style="color:var(--ink-2);margin-top:10px">Mande um áudio para a Orbi no WhatsApp e o atendimento aparece aqui, com valor e rota.</p>
-      </div>
+      <!-- Passo 1: boas-vindas -->
+      <section id="auth-boasvindas" class="view" style="display:flex;flex-direction:column;flex:1">
+        <div class="brand-row">
+          <svg aria-hidden="true"><use href="#logo-orbi"/></svg>
+          <span class="brand" style="font-size:30px">Orbi Studio</span>
+        </div>
+        <div style="margin:40px 0 30px">
+          <h1 class="t-title" style="font-size:32px">Sua agenda de beleza no piloto automático</h1>
+          <p class="t-body" style="color:var(--ink-2);margin-top:12px">Feito para quem atende em casa, em estúdio ou na casa da cliente.</p>
+        </div>
+        <ul class="boas-vindas">
+          <li><span class="ic"><i data-lucide="calendar-check"></i></span><span><b>Agenda, rotas e caixa juntos</b>Cada atendimento com horário, endereço, rota e valor.</span></li>
+          <li><span class="ic"><i data-lucide="mic"></i></span><span><b>Fale com a Orbi no WhatsApp</b>Mande um áudio e ela anota o atendimento por você.</span></li>
+          <li><span class="ic"><i data-lucide="bell-ring"></i></span><span><b>Lembretes que trabalham sozinhos</b>Resumo do dia, confirmação com a cliente e fechamento do caixa.</span></li>
+        </ul>
+        <div style="margin-top:auto;padding-top:32px;display:grid;gap:10px">
+          <div class="pontos" style="justify-content:center;margin-bottom:10px" aria-hidden="true"><span class="on"></span><span></span><span></span><span></span></div>
+          <button class="btn btn-primary btn-block" onclick="mostrarAuth('cadastro')">Começar <i data-lucide="arrow-right"></i></button>
+          <button class="btn btn-block" style="background:none;color:var(--ink)" onclick="mostrarAuth('login')">Já tenho conta</button>
+        </div>
+      </section>
 
-      <div class="seg block" role="group" aria-label="Acesso">
-        <button id="tab-btn-login" aria-pressed="true" onclick="alternarAbaAuth('login')">Entrar</button>
-        <button id="tab-btn-cadastro" aria-pressed="false" onclick="alternarAbaAuth('cadastro')">Criar conta</button>
-      </div>
+      <!-- Passos 2 (criar conta) e entrar -->
+      <section id="auth-formularios" class="view hidden">
+        <div class="onb-topo">
+          <button class="icon-btn" onclick="mostrarAuth('boasvindas')" aria-label="Voltar"><i data-lucide="arrow-left"></i></button>
+          <div id="auth-pontos" class="pontos" aria-hidden="true"><span></span><span class="on"></span><span></span><span></span></div>
+          <span style="width:44px"></span>
+        </div>
+        <h1 id="auth-titulo" class="t-title">Crie sua conta</h1>
+        <p id="auth-subtitulo" class="t-body" style="color:var(--ink-2);margin-top:8px">Leva menos de um minuto.</p>
 
-      <div id="auth-feedback" class="alert hidden" style="margin-top:16px" role="alert"></div>
+        <div id="auth-feedback" class="alert hidden" style="margin-top:16px" role="alert"></div>
 
-      <form id="form-login" class="fields" style="margin-top:20px" onsubmit="event.preventDefault(); fazerLoginReal();">
-        <div class="field">
-          <label for="login-email">E-mail</label>
-          <input id="login-email" class="input" type="email" autocomplete="email" inputmode="email" placeholder="voce@gmail.com">
-        </div>
-        <div class="field">
-          <label for="login-senha">Senha</label>
-          <input id="login-senha" class="input" type="password" autocomplete="current-password" placeholder="Sua senha">
-        </div>
-        <button id="btn-submit-login" type="submit" class="btn btn-primary btn-block">Entrar <i data-lucide="arrow-right"></i></button>
-      </form>
+        <form id="form-login" class="fields hidden" style="margin-top:20px" onsubmit="event.preventDefault(); fazerLoginReal();">
+          <div class="field">
+            <label for="login-email">E-mail</label>
+            <input id="login-email" class="input" type="email" autocomplete="email" inputmode="email" placeholder="voce@gmail.com">
+          </div>
+          <div class="field">
+            <label for="login-senha">Senha</label>
+            <input id="login-senha" class="input" type="password" autocomplete="current-password" placeholder="Sua senha">
+          </div>
+          <button id="btn-submit-login" type="submit" class="btn btn-primary btn-block">Entrar <i data-lucide="arrow-right"></i></button>
+          <button type="button" class="btn btn-block" style="background:none;color:var(--ink);min-height:44px" onclick="mostrarAuth('cadastro')">Ainda não tenho conta</button>
+        </form>
 
-      <form id="form-cadastro" class="fields hidden" style="margin-top:20px" onsubmit="event.preventDefault(); fazerCadastroReal();">
-        <div class="field">
-          <label for="cad-nome">Seu nome ou do seu espaço</label>
-          <input id="cad-nome" class="input" type="text" autocomplete="name" placeholder="Larissa Mendes">
-        </div>
-        <div class="field">
-          <label for="cad-whats">WhatsApp com DDD</label>
-          <input id="cad-whats" class="input" type="tel" inputmode="tel" autocomplete="tel" placeholder="11 99999-9999">
-        </div>
-        <div class="field">
-          <label for="cad-email">E-mail (o mesmo da sua agenda)</label>
-          <input id="cad-email" class="input" type="email" autocomplete="email" inputmode="email" placeholder="voce@gmail.com">
-        </div>
-        <div class="field">
-          <label for="cad-senha">Crie uma senha</label>
-          <input id="cad-senha" class="input" type="password" autocomplete="new-password" placeholder="Mínimo de 6 caracteres">
-        </div>
-        <button id="btn-submit-cadastro" type="submit" class="btn btn-primary btn-block">Criar conta</button>
-      </form>
+        <form id="form-cadastro" class="fields" style="margin-top:20px" onsubmit="event.preventDefault(); fazerCadastroReal();">
+          <div class="field">
+            <label for="cad-nome">Seu nome ou do seu espaço</label>
+            <input id="cad-nome" class="input" type="text" autocomplete="name" placeholder="Larissa Mendes">
+          </div>
+          <div class="field">
+            <label for="cad-whats">WhatsApp com DDD</label>
+            <input id="cad-whats" class="input" type="tel" inputmode="tel" autocomplete="tel" placeholder="11 99999-9999">
+          </div>
+          <div class="field">
+            <label for="cad-email">E-mail</label>
+            <input id="cad-email" class="input" type="email" autocomplete="email" inputmode="email" placeholder="voce@gmail.com">
+          </div>
+          <div class="field">
+            <label for="cad-senha">Crie uma senha</label>
+            <input id="cad-senha" class="input" type="password" autocomplete="new-password" placeholder="Mínimo de 6 caracteres">
+          </div>
+          <button id="btn-submit-cadastro" type="submit" class="btn btn-primary btn-block">Criar conta</button>
+          <button type="button" class="btn btn-block" style="background:none;color:var(--ink);min-height:44px" onclick="mostrarAuth('login')">Já tenho conta</button>
+        </form>
 
-      <p class="t-sub" style="margin-top:auto;padding-top:28px;text-align:center">
-        <i data-lucide="lock" style="width:16px;height:16px;vertical-align:-3px;margin-right:4px"></i>Sua agenda é só sua: ninguém mais acessa seus dados.
-      </p>
+        <p class="t-sub" style="padding-top:24px;text-align:center">
+          <i data-lucide="lock" style="width:16px;height:16px;vertical-align:-3px;margin-right:4px"></i>Sua agenda é só sua: ninguém mais acessa seus dados.
+        </p>
+      </section>
+    </div>
+  </div>
+
+  <!-- ================= PRIMEIRO ACESSO (depois de criar a conta) ================= -->
+  <div id="onboarding" class="auth hidden" style="z-index:45">
+    <div class="auth-inner">
+
+      <!-- Passo 3: calendários -->
+      <section id="onb-calendarios" class="view" style="display:flex;flex-direction:column;flex:1">
+        <div class="onb-topo">
+          <span style="width:44px"></span>
+          <div class="pontos" aria-hidden="true"><span></span><span></span><span class="on"></span><span></span></div>
+          <button class="btn" style="background:none;color:var(--muted);min-height:40px;padding:0 6px" onclick="irPassoOnboarding('orbi')">Pular</button>
+        </div>
+        <h1 class="t-title">Conecte seus calendários</h1>
+        <p class="t-body" style="color:var(--ink-2);margin-top:8px">Traga os compromissos que você já tem no celular. A Orbi passa a lembrar você deles, sem precisar cadastrar de novo.</p>
+
+        <div class="card list-card" style="margin-top:22px">
+          <button class="prov" onclick="abrirImportar('icloud')">
+            <span class="prov-ic"><i data-lucide="smartphone"></i></span>
+            <span style="flex:1"><span style="display:block;font-weight:600">Calendário do iPhone</span><span class="t-sub">iCloud</span></span>
+            <i data-lucide="plus" style="color:var(--accent)"></i>
+          </button>
+          <button class="prov" onclick="abrirImportar('google')">
+            <span class="prov-ic"><i data-lucide="calendar"></i></span>
+            <span style="flex:1"><span style="display:block;font-weight:600">Google Agenda</span><span class="t-sub">Android ou computador</span></span>
+            <i data-lucide="plus" style="color:var(--accent)"></i>
+          </button>
+        </div>
+
+        <div class="sec-head" id="onb-agendas-titulo"><h2>Conectados</h2></div>
+        <div id="onb-agendas" class="card hidden"></div>
+
+        <div style="margin-top:auto;padding-top:28px">
+          <button class="btn btn-primary btn-block" onclick="irPassoOnboarding('orbi')">Continuar <i data-lucide="arrow-right"></i></button>
+        </div>
+      </section>
+
+      <!-- Passo 4: ativar a Orbi -->
+      <section id="onb-orbi" class="view hidden" style="display:flex;flex-direction:column;flex:1">
+        <div class="onb-topo">
+          <button class="icon-btn" onclick="irPassoOnboarding('calendarios')" aria-label="Voltar"><i data-lucide="arrow-left"></i></button>
+          <div class="pontos" aria-hidden="true"><span></span><span></span><span></span><span class="on"></span></div>
+          <button class="btn" style="background:none;color:var(--muted);min-height:40px;padding:0 6px" onclick="concluirOnboarding()">Depois</button>
+        </div>
+        <h1 class="t-title">Ative a Orbi no WhatsApp</h1>
+        <p class="t-body" style="color:var(--ink-2);margin-top:8px">Envie o código abaixo <b>do seu WhatsApp profissional</b>. A Orbi reconhece o seu número na hora.</p>
+
+        <div class="code-box" style="margin-top:22px">
+          <p class="t-label">Seu código</p>
+          <p id="onb-codigo" class="code num" style="margin-top:4px">ORBI-0000</p>
+        </div>
+        <button id="onb-enviar" class="btn btn-primary btn-block" style="margin-top:16px" onclick="enviarCodigoOnboarding()"><i data-lucide="send"></i>Enviar código no WhatsApp</button>
+
+        <div id="onb-espera" class="espera hidden" style="margin-top:18px;justify-content:center"><i data-lucide="loader-circle"></i>Esperando sua mensagem chegar na Orbi…</div>
+        <div id="onb-sucesso" class="sucesso hidden" style="margin-top:18px"><i data-lucide="circle-check"></i><span id="onb-sucesso-txt">Orbi ativada!</span></div>
+
+        <div style="margin-top:auto;padding-top:28px">
+          <button id="onb-concluir" class="btn btn-secondary btn-block" onclick="concluirOnboarding()">Ir para minha agenda</button>
+        </div>
+      </section>
     </div>
   </div>
 
@@ -690,7 +817,7 @@
       <div class="sheet-head">
         <div>
           <h3 id="titulo-editar" class="t-section">Editar atendimento</h3>
-          <p class="t-sub" style="margin-top:4px">As mudanças vão para o Google e o iPhone.</p>
+          <p id="edit-subtitulo" class="t-sub" style="margin-top:4px">As mudanças vão para o Google e o iPhone.</p>
         </div>
         <button type="button" class="icon-btn" onclick="fecharModalEditarAgendamento()" aria-label="Fechar"><i data-lucide="x"></i></button>
       </div>
@@ -703,8 +830,9 @@
         </div>
         <div class="field"><label for="edit-endereco">Endereço</label><input id="edit-endereco" class="input" type="text" placeholder="Rua, número, bairro, cidade"></div>
       </div>
+      <p id="edit-aviso-importado" class="aviso hidden" style="margin-top:16px"><i data-lucide="info"></i><span id="edit-aviso-texto"></span></p>
       <button id="btn-salvar-edicao" type="submit" class="btn btn-primary btn-block" style="margin-top:20px">Salvar alterações</button>
-      <button type="button" class="btn btn-link-danger btn-block" style="margin-top:6px" onclick="pedirExclusao()"><i data-lucide="trash-2"></i>Cancelar atendimento</button>
+      <button id="btn-excluir-edicao" type="button" class="btn btn-link-danger btn-block" style="margin-top:6px" onclick="pedirExclusao()"><i data-lucide="trash-2"></i>Cancelar atendimento</button>
     </form>
   </div>
 
@@ -823,24 +951,88 @@
       <div class="sheet-head">
         <div>
           <h3 id="titulo-cal" class="t-section">Calendários</h3>
-          <p class="t-sub" style="margin-top:4px">Seus atendimentos aparecem também na agenda do celular.</p>
+          <p class="t-sub" style="margin-top:4px">Junte o Orbi Studio com a agenda do seu celular.</p>
         </div>
         <button class="icon-btn" onclick="fecharModalCalendarios()" aria-label="Fechar"><i data-lucide="x"></i></button>
       </div>
 
-      <p class="t-card" style="font-size:16px">Google Agenda</p>
-      <div class="field" style="margin-top:10px">
-        <label for="input-email-calendar">Gmail da sua agenda</label>
+      <p class="t-card" style="font-size:16px">Trazer da sua agenda</p>
+      <p class="t-sub" style="margin-top:4px">Os compromissos que você já tem entram aqui e a Orbi passa a avisar você deles.</p>
+      <div id="lista-agendas-externas" class="card" style="margin-top:12px"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
+        <button class="btn btn-secondary" style="min-height:44px;font-size:15px" onclick="abrirImportar('icloud')"><i data-lucide="smartphone"></i>iPhone</button>
+        <button class="btn btn-secondary" style="min-height:44px;font-size:15px" onclick="abrirImportar('google')"><i data-lucide="calendar"></i>Google</button>
+      </div>
+
+      <div style="border-top:1px solid var(--line);margin:24px 0 18px"></div>
+
+      <p class="t-card" style="font-size:16px">Ver o Orbi na sua agenda</p>
+      <p class="t-sub" style="margin-top:4px">Os atendimentos marcados aqui aparecem também no calendário do celular.</p>
+      <div class="field" style="margin-top:12px">
+        <label for="input-email-calendar">Gmail da sua agenda Google</label>
         <input id="input-email-calendar" class="input" type="email" inputmode="email" placeholder="voce@gmail.com">
       </div>
-      <button id="btn-google-acl" class="btn btn-primary btn-block" style="margin-top:12px" onclick="conectarGoogleCalendarUmClique()">Conectar Google Agenda</button>
-
-      <div style="border-top:1px solid var(--line);margin:22px 0 18px"></div>
-
-      <p class="t-card" style="font-size:16px">Calendário do iPhone</p>
-      <p class="t-sub" style="margin-top:4px">Abra este link no iPhone e toque em “Assinar”.</p>
-      <button class="btn btn-secondary btn-block" style="margin-top:12px" onclick="conectarAppleCalendarUmClique()"><i data-lucide="smartphone"></i>Adicionar ao iPhone</button>
+      <button id="btn-google-acl" class="btn btn-secondary btn-block" style="margin-top:10px" onclick="conectarGoogleCalendarUmClique()">Conectar Google Agenda</button>
+      <button class="btn btn-secondary btn-block" style="margin-top:8px" onclick="conectarAppleCalendarUmClique()"><i data-lucide="smartphone"></i>Adicionar ao iPhone</button>
     </div>
+  </div>
+
+  <!-- ================= MODAL: IMPORTAR AGENDA ================= -->
+  <div id="modal-importar" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="titulo-importar" style="z-index:52">
+    <form class="sheet" onsubmit="event.preventDefault(); conectarAgendaExterna();">
+      <div class="sheet-head">
+        <div>
+          <h3 id="titulo-importar" class="t-section">Trazer sua agenda</h3>
+          <p class="t-sub" style="margin-top:4px">Leva uns 2 minutos e você só faz uma vez.</p>
+        </div>
+        <button type="button" class="icon-btn" onclick="fecharModal('modal-importar')" aria-label="Fechar"><i data-lucide="x"></i></button>
+      </div>
+
+      <div class="seg block" role="group" aria-label="Onde está sua agenda">
+        <button type="button" data-prov="icloud" aria-pressed="true" onclick="alternarProvedorImportar('icloud')">iPhone</button>
+        <button type="button" data-prov="google" aria-pressed="false" onclick="alternarProvedorImportar('google')">Google</button>
+      </div>
+
+      <ol id="passos-icloud" class="passos" style="margin:20px 0 0;padding:0;list-style:none">
+        <li><span>Abra o app <b>Calendário</b> e toque em <b>Calendários</b>, embaixo.
+          <span class="caminho"><span>Calendário</span><i data-lucide="chevron-right"></i><span>Calendários</span></span></span></li>
+        <li><span>Toque no <b>ⓘ</b> ao lado da agenda onde estão seus atendimentos.</span></li>
+        <li><span>Ative <b>Calendário Público</b> e toque em <b>Compartilhar Link</b>.
+          <span class="caminho"><span>Calendário Público</span><i data-lucide="chevron-right"></i><span>Compartilhar Link</span><i data-lucide="chevron-right"></i><span>Copiar</span></span></span></li>
+        <li><span>Volte aqui e cole o link abaixo.</span></li>
+      </ol>
+
+      <ol id="passos-google" class="passos hidden" style="margin:20px 0 0;padding:0;list-style:none">
+        <li><span>Abra o <b>Google Agenda</b> no navegador. No celular, ative <b>Versão para computador</b>.
+          <a class="chip chip-line" style="margin-top:8px" href="https://calendar.google.com/calendar/r/settings" target="_blank" rel="noopener"><i data-lucide="external-link"></i>Abrir configurações</a></span></li>
+        <li><span>No menu da esquerda, toque no nome da agenda dos atendimentos.</span></li>
+        <li><span>Desça até <b>Integrar agenda</b> e copie o <b>Endereço secreto no formato iCal</b>.
+          <span class="caminho"><span>Integrar agenda</span><i data-lucide="chevron-right"></i><span>Endereço secreto iCal</span></span></span></li>
+        <li><span>Volte aqui e cole o link abaixo.</span></li>
+      </ol>
+
+      <div class="field" style="margin-top:20px">
+        <label for="imp-url">Link da agenda</label>
+        <div style="display:flex;gap:8px">
+          <input id="imp-url" class="input" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="webcal://p00-caldav.icloud.com/…" oninput="document.getElementById('imp-erro').textContent=''">
+          <button type="button" class="btn btn-secondary" style="flex-shrink:0;padding:0 14px" onclick="colarLinkAgenda()"><i data-lucide="clipboard-paste"></i>Colar</button>
+        </div>
+        <p id="imp-erro" class="hint" style="color:var(--danger)"></p>
+      </div>
+      <div class="field" style="margin-top:14px">
+        <label for="imp-nome">Nome para reconhecer</label>
+        <input id="imp-nome" class="input" type="text" maxlength="60" placeholder="Agenda do iPhone">
+      </div>
+
+      <label class="switch-row">
+        <span><span style="display:block;font-weight:600;color:var(--ink)">Só eventos com serviços do catálogo</span><span id="imp-filtro-dica">Ignora compromissos pessoais (médico, aniversário…).</span></span>
+        <span class="switch"><input id="imp-so-catalogo" type="checkbox"><span></span></span>
+      </label>
+
+      <p class="aviso" style="margin-top:16px"><i data-lucide="lock"></i><span>O link só permite <b>ler</b> a agenda. Não compartilhe com outras pessoas.</span></p>
+
+      <button id="btn-conectar-agenda" type="submit" class="btn btn-primary btn-block" style="margin-top:18px">Conectar e importar</button>
+    </form>
   </div>
 
   <!-- ================= MODAL: ASSINATURA ================= -->
@@ -922,6 +1114,10 @@
     let agendamentos = [];
     let tarefas = [];
     let servicos = [];
+    let agendasExternas = [];
+    let provedorImportar = "icloud";
+    let timerDeteccaoOrbi = null;
+    const confirmarRemocaoAgenda = {};
     let servicosCarregados = false;
     let idServicoEmEdicao = null;
     let confirmarExclusaoServicoAte = 0;
@@ -1022,14 +1218,23 @@
       box.textContent = msg;
     }
 
-    function alternarAbaAuth(aba) {
-      const login = aba === "login";
-      document.getElementById("tab-btn-login").setAttribute("aria-pressed", String(login));
-      document.getElementById("tab-btn-cadastro").setAttribute("aria-pressed", String(!login));
+    // Telas de entrada: boas-vindas → criar conta (ou entrar)
+    function mostrarAuth(tela) {
+      const boas = tela === "boasvindas";
+      document.getElementById("auth-boasvindas").classList.toggle("hidden", !boas);
+      document.getElementById("auth-formularios").classList.toggle("hidden", boas);
+      document.getElementById("auth-feedback").classList.add("hidden");
+      if (boas) return icones();
+      const login = tela === "login";
       document.getElementById("form-login").classList.toggle("hidden", !login);
       document.getElementById("form-cadastro").classList.toggle("hidden", login);
-      document.getElementById("auth-feedback").classList.add("hidden");
+      document.getElementById("auth-pontos").classList.toggle("hidden", login);
+      document.getElementById("auth-titulo").textContent = login ? "Que bom te ver de novo" : "Crie sua conta";
+      document.getElementById("auth-subtitulo").textContent = login ? "Entre com seu e-mail e senha." : "Leva menos de um minuto.";
+      icones();
+      setTimeout(() => document.getElementById(login ? "login-email" : "cad-nome").focus(), 150);
     }
+    function alternarAbaAuth(aba) { mostrarAuth(aba); }
 
     async function fazerLoginReal() {
       const email = document.getElementById("login-email").value.trim();
@@ -1045,6 +1250,7 @@
       icones();
 
       if (error) return mostrarFeedbackAuth("E-mail ou senha incorretos. Confira e tente de novo.", true);
+      gravarLocal("orbi_ja_entrou", "1");
       await inicializarSessaoAutenticada(data.user);
     }
 
@@ -1076,6 +1282,10 @@
         }
         return mostrarFeedbackAuth("Não foi possível criar a conta: " + error.message, true);
       }
+      if (data?.user && !data.session) {
+        return mostrarFeedbackAuth("Conta criada! Enviamos um link de confirmação para o seu e-mail. Depois de confirmar, é só entrar.");
+      }
+      gravarLocal("orbi_ja_entrou", "1");
       if (data?.user) await inicializarSessaoAutenticada(data.user, true);
     }
 
@@ -1095,8 +1305,8 @@
       perfilAtual = await obterPerfil(user);
 
       preencherConta();
-      await Promise.all([carregarServicos(), carregarAgendamentosSupabase(true, true)]);
-      if (contaNova) abrirModalWhatsappOrbi();
+      await Promise.all([carregarServicos(), carregarAgendasExternas(), carregarAgendamentosSupabase(true, true)]);
+      if (!perfilAtual?.onboarding_concluido_em) abrirOnboarding();
     }
 
     // O perfil é criado pelo banco no cadastro (código ORBI de 6 caracteres e assinatura de teste).
@@ -1133,7 +1343,11 @@
         ? `Hoje a Orbi atende o número ${formatarFone(perfilAtual.whatsapp)}. Para trocar, envie o código pelo novo número.`
         : "";
       const emailCal = perfilAtual?.google_calendar_id || usuarioAuth?.email || "";
-      document.getElementById("txt-calendar-email").textContent = emailCal ? `Google: ${emailCal}` : "Google e iPhone";
+      const nAg = agendasExternas.length;
+      document.getElementById("txt-calendar-email").textContent = nAg
+        ? `Trazendo de ${nAg} agenda${nAg > 1 ? "s" : ""}${emailCal ? " · Google: " + emailCal : ""}`
+        : (emailCal ? `Google: ${emailCal}` : "Google e iPhone");
+      document.getElementById("onb-codigo").textContent = perfilAtual?.codigo_orbi || "ORBI-0000";
       document.getElementById("input-email-calendar").value = emailCal;
 
       const badge = document.getElementById("badge-status-assinatura");
@@ -1155,7 +1369,11 @@
       servicos = [];
       servicosCarregados = false;
       assinaturaDados = "";
+      agendasExternas = [];
+      pararDeteccaoOrbi();
+      document.getElementById("onboarding").classList.add("hidden");
       switchTab("agenda");
+      mostrarAuth("login");
       document.getElementById("auth-screen").classList.remove("hidden");
     }
 
@@ -1180,7 +1398,7 @@
     // ============================================================================
     // CALENDÁRIOS (Google via e-mail / iPhone via feed .ics)
     // ============================================================================
-    function abrirModalCalendarios() { abrirModal("modal-calendarios"); }
+    function abrirModalCalendarios() { renderAgendasExternas(); abrirModal("modal-calendarios"); carregarAgendasExternas(); }
     function fecharModalCalendarios() { fecharModal("modal-calendarios"); }
 
     function conectarAppleCalendarUmClique() {
@@ -1246,7 +1464,9 @@
         valor: valorNumerico,
         status: row.status || "Confirmado",
         concluido,
-        forma_pagamento: row.forma_pagamento || "Pix"
+        forma_pagamento: row.forma_pagamento || "Pix",
+        importado: Boolean(row.external_uid),
+        origemAgenda: /google/i.test(row.origem || "") ? "Google" : (/iphone/i.test(row.origem || "") ? "iPhone" : "")
       };
     }
 
@@ -1412,7 +1632,7 @@
             </button>
             <button class="check ${a.concluido ? "on" : ""}" onclick="alternarConcluido('${a.id}')" aria-pressed="${a.concluido}" aria-label="${a.concluido ? "Desmarcar concluído" : "Marcar como concluído"}"><i data-lucide="check"></i></button>
           </div>
-          <p class="t-sub" style="margin-top:2px">${esc(a.servico)}</p>
+          <p class="t-sub" style="margin-top:2px">${esc(a.servico)}${a.importado ? ` <span class="chip chip-static chip-origem" title="Veio da sua agenda"><i data-lucide="${a.origemAgenda === "Google" ? "calendar" : "smartphone"}"></i>${a.origemAgenda || "Agenda"}</span>` : ""}</p>
           ${a.endereco ? `<p class="appt-addr"><i data-lucide="map-pin"></i><span>${esc(a.endereco)}</span></p>` : ""}
           <div class="appt-wx" data-wx="${esc(a.id)}"></div>
           <div class="appt-actions">${botaoValor}${pago}${botaoRota}${botaoConfirmar}</div>
@@ -1671,6 +1891,15 @@
       document.getElementById("edit-data").value = item.data_agendamento;
       document.getElementById("edit-horario").value = item.horario;
       document.getElementById("edit-endereco").value = item.endereco || "";
+      const imp = Boolean(item.importado);
+      document.getElementById("edit-data").disabled = imp;
+      document.getElementById("edit-horario").disabled = imp;
+      document.getElementById("btn-excluir-edicao").classList.toggle("hidden", imp);
+      document.getElementById("edit-aviso-importado").classList.toggle("hidden", !imp);
+      document.getElementById("edit-subtitulo").textContent = imp ? "Ajustes ficam só no Orbi Studio." : "As mudanças vão para o Google e o iPhone.";
+      document.getElementById("edit-aviso-texto").textContent = imp
+        ? `Veio da sua agenda ${item.origemAgenda === "Google" ? "do Google" : "do iPhone"}. Data e horário mudam por lá; para cancelar, apague o evento na agenda. Aqui você ajusta cliente, serviço, endereço e valor.`
+        : "";
       abrirModal("modal-editar-agendamento");
     }
 
@@ -2042,6 +2271,270 @@
     }
 
     // ============================================================================
+    // CALENDÁRIOS CONECTADOS (importação por link .ics do iPhone/Google)
+    // ============================================================================
+    const LINK_AGENDA_OK = /^(https|webcal):\/\/(calendar\.google\.com\/calendar\/ical\/|p[0-9]{1,3}-caldav\.icloud\.com\/published\/)[^\s]+$/i;
+
+    function tempoRelativo(iso) {
+      if (!iso) return "ainda não sincronizado";
+      const min = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
+      if (min < 1) return "sincronizado agora";
+      if (min < 60) return `sincronizado há ${min} min`;
+      const h = Math.round(min / 60);
+      if (h < 24) return `sincronizado há ${h} h`;
+      return `sincronizado em ${formatarDataCurta(toISO(new Date(iso)))}`;
+    }
+
+    async function carregarAgendasExternas() {
+      if (!usuarioAuth) return;
+      const { data, error } = await supabaseClient
+        .from("agendas_externas")
+        .select("id, provedor, nome, so_catalogo, ativo, ultima_sincronizacao, ultimo_status, ultimo_erro, eventos_importados")
+        .order("created_at", { ascending: true });
+      if (error) { console.warn("Agendas:", error.message); return; }
+      agendasExternas = data || [];
+      renderAgendasExternas();
+      preencherConta();
+    }
+
+    function htmlAgenda(g) {
+      const erro = g.ultimo_status === "erro";
+      const status = erro ? (g.ultimo_erro || "Não foi possível ler a agenda.")
+        : `${tempoRelativo(g.ultima_sincronizacao)} · ${plural(g.eventos_importados || 0, "compromisso", "compromissos")}`;
+      return `<div class="ag" data-agenda="${esc(g.id)}">
+        <div class="ag-topo">
+          <span class="prov-ic"><i data-lucide="${g.provedor === "google" ? "calendar" : "smartphone"}"></i></span>
+          <div style="flex:1;min-width:0">
+            <p style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(g.nome)}</p>
+            <p class="ag-status ${erro ? "erro" : ""}">${esc(status)}</p>
+          </div>
+        </div>
+        <label class="switch-row">
+          <span>Só eventos com serviços do catálogo</span>
+          <span class="switch"><input type="checkbox" ${g.so_catalogo ? "checked" : ""} onchange="alternarFiltroCatalogo('${esc(g.id)}', this.checked)" aria-label="Só eventos com serviços do catálogo"><span></span></span>
+        </label>
+        <div class="ag-acoes">
+          <button class="chip chip-soft" data-sync="${esc(g.id)}" onclick="sincronizarAgenda('${esc(g.id)}')"><i data-lucide="refresh-cw"></i>Sincronizar agora</button>
+          <button class="chip chip-line" data-remover="${esc(g.id)}" onclick="removerAgendaExterna('${esc(g.id)}')"><i data-lucide="unlink"></i>Desconectar</button>
+        </div>
+      </div>`;
+    }
+
+    function renderAgendasExternas() {
+      const vazio = `<p class="t-sub" style="padding:16px">Nenhuma agenda conectada ainda.</p>`;
+      const html = agendasExternas.length ? agendasExternas.map(htmlAgenda).join("") : vazio;
+      const lista = document.getElementById("lista-agendas-externas");
+      if (lista) lista.innerHTML = html;
+      const onb = document.getElementById("onb-agendas");
+      if (onb) {
+        onb.innerHTML = agendasExternas.map(htmlAgenda).join("");
+        onb.classList.toggle("hidden", !agendasExternas.length);
+        document.getElementById("onb-agendas-titulo").classList.toggle("hidden", !agendasExternas.length);
+      }
+      icones();
+    }
+
+    function abrirImportar(provedor) {
+      document.getElementById("imp-url").value = "";
+      document.getElementById("imp-erro").textContent = "";
+      document.getElementById("imp-so-catalogo").checked = false;
+      alternarProvedorImportar(provedor || "icloud");
+      const n = servicos.length;
+      document.getElementById("imp-filtro-dica").textContent = n
+        ? `Ignora compromissos pessoais. Você tem ${plural(n, "serviço", "serviços")} no catálogo.`
+        : "Você ainda não tem serviços no catálogo: deixe desligado para trazer tudo.";
+      abrirModal("modal-importar");
+    }
+
+    function alternarProvedorImportar(p) {
+      provedorImportar = p === "google" ? "google" : "icloud";
+      document.querySelectorAll("[data-prov]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.prov === provedorImportar)));
+      document.getElementById("passos-icloud").classList.toggle("hidden", provedorImportar !== "icloud");
+      document.getElementById("passos-google").classList.toggle("hidden", provedorImportar !== "google");
+      document.getElementById("imp-url").placeholder = provedorImportar === "google"
+        ? "https://calendar.google.com/calendar/ical/…/basic.ics" : "webcal://p00-caldav.icloud.com/published/…";
+      document.getElementById("imp-nome").placeholder = provedorImportar === "google" ? "Google Agenda" : "Agenda do iPhone";
+      icones();
+    }
+
+    async function colarLinkAgenda() {
+      try {
+        const t = await navigator.clipboard.readText();
+        if (t) document.getElementById("imp-url").value = t.trim();
+      } catch (e) {
+        toast("Toque e segure no campo e escolha Colar.");
+      }
+    }
+
+    async function conectarAgendaExterna() {
+      const campo = document.getElementById("imp-url");
+      const erro = document.getElementById("imp-erro");
+      const url = campo.value.trim().replace(/\s+/g, "");
+      if (!LINK_AGENDA_OK.test(url)) {
+        erro.textContent = provedorImportar === "google"
+          ? "Esse não parece o endereço secreto iCal do Google. Ele começa com https://calendar.google.com/calendar/ical/"
+          : "Esse não parece o link do Calendário Público do iPhone. Ele começa com webcal://p…-caldav.icloud.com/published/";
+        campo.focus();
+        return;
+      }
+      const provedor = /icloud\.com/i.test(url) ? "icloud" : "google";
+      const nome = document.getElementById("imp-nome").value.trim() || (provedor === "google" ? "Google Agenda" : "Agenda do iPhone");
+      const so_catalogo = document.getElementById("imp-so-catalogo").checked;
+
+      const btn = document.getElementById("btn-conectar-agenda");
+      btn.disabled = true;
+      btn.textContent = "Conectando…";
+      const { data, error } = await supabaseClient.from("agendas_externas")
+        .insert([{ provedor, nome, url, so_catalogo }]).select("id").single();
+      btn.disabled = false;
+      btn.textContent = "Conectar e importar";
+
+      if (error) {
+        if (error.code === "23505") erro.textContent = "Essa agenda já está conectada.";
+        else if (/Limite/i.test(error.message || "")) erro.textContent = "Você já conectou 5 agendas, que é o máximo.";
+        else if (error.code === "23514") erro.textContent = "Esse link não foi aceito. Copie de novo e cole aqui.";
+        else erro.textContent = "Não foi possível conectar agora. Tente de novo.";
+        return;
+      }
+      fecharModal("modal-importar");
+      await carregarAgendasExternas();
+      toast("Agenda conectada. Lendo seus compromissos…");
+      await sincronizarAgenda(data.id);
+    }
+
+    async function sincronizarAgenda(id) {
+      const botoes = document.querySelectorAll(`[data-sync="${CSS.escape(String(id))}"]`);
+      botoes.forEach(b => { b.disabled = true; b.innerHTML = `<i data-lucide="loader-circle" class="girando"></i>Sincronizando…`; });
+      icones();
+      let r = null;
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        const ctrl = new AbortController();
+        const t = setTimeout(() => ctrl.abort(), 45000);
+        const resp = await fetch("/api/importar-agenda", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token || ""}` },
+          body: JSON.stringify({ agenda_id: id }),
+          signal: ctrl.signal
+        });
+        clearTimeout(t);
+        r = await resp.json().catch(() => null);
+      } catch (e) {
+        r = { ok: false, erro: "A sincronização demorou demais. Tente de novo em instantes." };
+      }
+      if (r && r.ok) {
+        const novos = r.inseridos || 0;
+        let msg = novos ? `${plural(novos, "compromisso novo", "compromissos novos")} na sua agenda` : "Sua agenda já estava em dia";
+        if (r.removidos) msg += ` · ${r.removidos} removido${r.removidos > 1 ? "s" : ""}`;
+        if (r.ignorados) msg += ` · ${r.ignorados} pessoal${r.ignorados > 1 ? "is" : ""} ignorado${r.ignorados > 1 ? "s" : ""}`;
+        toast(msg);
+      } else {
+        toast((r && r.erro) || "Não foi possível sincronizar agora.");
+      }
+      await Promise.all([carregarAgendasExternas(), carregarAgendamentosSupabase(true, true)]);
+    }
+
+    async function alternarFiltroCatalogo(id, valor) {
+      const { error } = await supabaseClient.from("agendas_externas").update({ so_catalogo: valor }).eq("id", id);
+      if (error) { toast("Não foi possível mudar o filtro."); return carregarAgendasExternas(); }
+      const g = agendasExternas.find(x => String(x.id) === String(id));
+      if (g) g.so_catalogo = valor;
+      toast(valor ? "Filtro ligado. Atualizando a agenda…" : "Filtro desligado. Atualizando a agenda…");
+      await sincronizarAgenda(id);
+    }
+
+    async function removerAgendaExterna(id) {
+      const btns = document.querySelectorAll(`[data-remover="${CSS.escape(String(id))}"]`);
+      if (!confirmarRemocaoAgenda[id] || Date.now() > confirmarRemocaoAgenda[id]) {
+        confirmarRemocaoAgenda[id] = Date.now() + 4000;
+        btns.forEach(b => { b.innerHTML = `<i data-lucide="alert-triangle"></i>Toque de novo para desconectar`; });
+        icones();
+        setTimeout(() => { if (Date.now() > (confirmarRemocaoAgenda[id] || 0)) renderAgendasExternas(); }, 4100);
+        return;
+      }
+      delete confirmarRemocaoAgenda[id];
+      const { error } = await supabaseClient.from("agendas_externas").delete().eq("id", id);
+      if (error) return toast("Não foi possível desconectar agora.");
+      toast("Agenda desconectada. Os compromissos futuros dela saíram do Orbi.");
+      await Promise.all([carregarAgendasExternas(), carregarAgendamentosSupabase(true, true)]);
+    }
+
+    // ============================================================================
+    // PRIMEIRO ACESSO (calendários → Orbi no WhatsApp)
+    // ============================================================================
+    function abrirOnboarding() {
+      document.getElementById("onboarding").classList.remove("hidden");
+      irPassoOnboarding("calendarios");
+    }
+
+    function irPassoOnboarding(passo) {
+      const orbi = passo === "orbi";
+      document.getElementById("onb-calendarios").classList.toggle("hidden", orbi);
+      document.getElementById("onb-orbi").classList.toggle("hidden", !orbi);
+      document.getElementById("onboarding").scrollTo({ top: 0 });
+      if (orbi) {
+        mostrarStatusOrbi();
+        if (!perfilAtual?.whatsapp) iniciarDeteccaoOrbi();
+      } else {
+        pararDeteccaoOrbi();
+        renderAgendasExternas();
+      }
+      icones();
+    }
+
+    function mostrarStatusOrbi() {
+      const ativa = Boolean(perfilAtual?.whatsapp);
+      document.getElementById("onb-sucesso").classList.toggle("hidden", !ativa);
+      document.getElementById("onb-sucesso-txt").textContent = ativa ? `Orbi ativada no ${formatarFone(perfilAtual.whatsapp)}` : "";
+      document.getElementById("onb-enviar").classList.toggle("hidden", ativa);
+      document.getElementById("onb-concluir").className = ativa ? "btn btn-primary btn-block" : "btn btn-secondary btn-block";
+      if (ativa) document.getElementById("onb-espera").classList.add("hidden");
+      icones();
+    }
+
+    function enviarCodigoOnboarding() {
+      const cod = perfilAtual?.codigo_orbi || "";
+      const msg = `Olá Orbi! Quero ativar minha agenda neste número. Meu código de vinculação é: *${cod}*`;
+      window.open(`https://wa.me/${NUMERO_ORBI}?text=${encodeURIComponent(msg)}`, "_blank");
+      document.getElementById("onb-espera").classList.remove("hidden");
+      iniciarDeteccaoOrbi();
+      icones();
+    }
+
+    // Confere a cada 3 s (por até 5 min) se a Orbi já vinculou o número
+    function iniciarDeteccaoOrbi() {
+      pararDeteccaoOrbi();
+      let tentativas = 0;
+      timerDeteccaoOrbi = setInterval(async () => {
+        if (++tentativas > 100 || !usuarioAuth) return pararDeteccaoOrbi();
+        const { data } = await supabaseClient.from("profiles").select("*").eq("id", usuarioAuth.id).maybeSingle();
+        if (data) perfilAtual = data;
+        if (perfilAtual?.whatsapp) {
+          pararDeteccaoOrbi();
+          preencherConta();
+          mostrarStatusOrbi();
+          toast("Orbi ativada! ✨");
+        }
+      }, 3000);
+    }
+
+    function pararDeteccaoOrbi() {
+      if (timerDeteccaoOrbi) clearInterval(timerDeteccaoOrbi);
+      timerDeteccaoOrbi = null;
+    }
+
+    async function concluirOnboarding() {
+      pararDeteccaoOrbi();
+      document.getElementById("onboarding").classList.add("hidden");
+      if (usuarioAuth) {
+        const agora = new Date().toISOString();
+        await supabaseClient.from("profiles").update({ onboarding_concluido_em: agora }).eq("id", usuarioAuth.id);
+        if (perfilAtual) perfilAtual.onboarding_concluido_em = agora;
+      }
+      switchTab("agenda");
+    }
+
+    // ============================================================================
     // NAVEGAÇÃO
     // ============================================================================
     function switchTab(tab) {
@@ -2060,6 +2553,7 @@
     // ============================================================================
     window.addEventListener("DOMContentLoaded", async () => {
       aplicarTema();
+      mostrarAuth(lerLocal("orbi_ja_entrou") ? "login" : "boasvindas");
       renderCalendario();
       renderDia();
       icones();
