@@ -1,24 +1,18 @@
 {
-  "name": "Orbi App — Agenda & Assistente Celi",
-  "short_name": "Orbi",
-  "description": "Sua agenda no piloto automático pelo WhatsApp.",
+  "name": "Orbi Studio",
+  "short_name": "Orbi Studio",
+  "description": "Agenda, rotas e caixa para profissionais da beleza, com a Orbi no WhatsApp.",
+  "lang": "pt-BR",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#FAF8F6",
-  "theme_color": "#18181b",
   "orientation": "portrait",
+  "background_color": "#FAF7F6",
+  "theme_color": "#FAF7F6",
   "icons": [
-    {
-      "src": "/icon-orbi.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icon-orbi.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icon-orbi.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
   ]
 }
