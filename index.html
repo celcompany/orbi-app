@@ -197,6 +197,39 @@
     .input-lg { font-size: 22px; font-weight: 600; }
     .fields > * + * { margin-top: 14px; }
 
+    /* ================= PLANO (Etapa 5) ================= */
+    .plano-faixa { display: flex; align-items: center; gap: 12px; padding: 10px 10px 10px 14px; margin: -4px 0 18px;
+      border-radius: 16px; background: var(--surface-2); border: 1px solid var(--line); animation: viewIn .36s cubic-bezier(.2, .8, .2, 1) both; }
+    .plano-faixa .pf-ic { width: 32px; height: 32px; border-radius: 10px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center;
+      background: var(--accent-soft); color: var(--accent); }
+    .plano-faixa .pf-ic svg.lucide { width: 17px; height: 17px; }
+    .plano-faixa.alerta .pf-ic { background: var(--warn-soft); color: var(--warn); }
+    .plano-faixa .pf-txt { flex: 1; min-width: 0; font-size: 14px; line-height: 1.35; color: var(--ink-2); }
+    .plano-faixa .pf-txt b { color: var(--ink); font-weight: 600; }
+    .plano-faixa .pf-x { width: 32px; height: 32px; color: var(--muted); }
+
+    .trancado { position: relative; }
+    .trancado .tranca-previa { filter: blur(7px) saturate(.7); opacity: .55; pointer-events: none; user-select: none; }
+    .tranca-card { position: relative; margin: 0 auto 16px; max-width: 420px; z-index: 2;
+      padding: 22px 20px 20px; text-align: center; animation: viewIn .4s cubic-bezier(.2, .8, .2, 1) both; }
+    .tranca-card .tc-ic { width: 52px; height: 52px; border-radius: 16px; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center;
+      background: var(--accent-soft); color: var(--accent); }
+    .tranca-card ul { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 8px; text-align: left; }
+    .tranca-card li { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; color: var(--ink-2); }
+    .tranca-card li svg.lucide { width: 16px; height: 16px; color: var(--success); margin-top: 2px; flex-shrink: 0; }
+
+    .plano-inclui { list-style: none; margin: 14px 0 0; padding: 14px 0 0; border-top: 1px solid var(--line); display: grid; gap: 8px; }
+    .plano-inclui li { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; color: var(--ink-2); }
+    .plano-inclui li svg.lucide { width: 16px; height: 16px; margin-top: 2px; flex-shrink: 0; color: var(--success); }
+    .plano-inclui li.off { color: var(--muted); }
+    .plano-inclui li.off svg.lucide { color: var(--muted); }
+    .plano-nota { margin-top: 12px; font-size: 13px; color: var(--muted); }
+
+    .pro-selo { width: 72px; height: 72px; border-radius: 22px; margin: 6px auto 16px; display: flex; align-items: center; justify-content: center;
+      background: var(--accent); color: var(--on-accent); box-shadow: 0 14px 30px -14px var(--accent); animation: proPop .5s cubic-bezier(.2, 1.4, .3, 1) both; }
+    .pro-selo svg.lucide { width: 34px; height: 34px; }
+    @keyframes proPop { from { transform: scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
+
     .alert { padding: 12px 14px; border-radius: 14px; font-size: 14px; font-weight: 500; }
     .alert-danger { background: var(--danger-soft); color: var(--danger); }
     .alert-success { background: var(--success-soft); color: var(--success); }
@@ -601,6 +634,13 @@
         <button id="btn-hoje" class="chip chip-soft hidden" onclick="irParaHoje()"><i data-lucide="calendar-check"></i>Hoje</button>
       </header>
 
+      <div id="plano-faixa" class="plano-faixa hidden" role="status">
+        <span class="pf-ic"><i id="plano-faixa-icone" data-lucide="sparkles"></i></span>
+        <p id="plano-faixa-txt" class="pf-txt"></p>
+        <button class="chip chip-accent" onclick="abrirModalAssinatura()">Assinar</button>
+        <button class="icon-btn pf-x" onclick="dispensarFaixaPlano()" aria-label="Dispensar aviso"><i data-lucide="x"></i></button>
+      </div>
+
       <div class="cal-head">
         <h1 id="cal-titulo" class="t-title">Agenda</h1>
         <div style="display:flex">
@@ -654,6 +694,19 @@
         <select id="select-mes-caixa" class="input select" style="width:auto" onchange="mesCaixa = this.value; renderFinanceiro(); lucide.createIcons();"></select>
       </div>
 
+      <div id="caixa-tranca" class="card tranca-card hidden" role="region" aria-labelledby="titulo-tranca">
+        <div class="tc-ic"><i data-lucide="lock-keyhole"></i></div>
+        <h2 id="titulo-tranca" class="t-section">Financeiro é do Pro</h2>
+        <p class="t-sub" style="margin-top:6px">Seus valores continuam guardados. Assine para ver tudo de novo.</p>
+        <ul>
+          <li><i data-lucide="check"></i><span>Quanto entrou e quanto falta receber no mês</span></li>
+          <li><i data-lucide="check"></i><span>Separado por Pix, cartão e dinheiro</span></li>
+          <li><i data-lucide="check"></i><span>Aviso de atendimentos sem valor</span></li>
+        </ul>
+        <button class="btn btn-primary btn-block" style="margin-top:18px" onclick="abrirModalAssinatura()">Assinar · R$ 49,90/mês</button>
+      </div>
+
+      <div id="caixa-conteudo">
       <div class="card" style="padding:20px">
         <p class="t-sub" style="font-weight:500">Recebido</p>
         <p id="caixa-recebido" class="t-value num" style="margin-top:4px">R$ 0,00</p>
@@ -677,6 +730,7 @@
 
       <div class="sec-head"><h2>Lançamentos</h2><span id="caixa-qtd" class="t-sub num"></span></div>
       <ul id="lista-transacoes" class="card rows"></ul>
+      </div>
     </section>
 
     <!-- ================= ABA: SERVIÇOS ================= -->
@@ -735,16 +789,22 @@
         </div>
       </div>
 
-      <div class="sec-head"><h2>Assinatura</h2></div>
+      <div class="sec-head"><h2>Seu plano</h2></div>
       <div class="card" style="padding:16px">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
-          <div>
-            <p class="t-card">Orbi Studio Pro</p>
-            <p class="t-sub" style="margin-top:2px">R$ 49,90/mês · vence em <span id="txt-vencimento-assinatura" class="num">--</span></p>
+          <div style="min-width:0">
+            <p id="plano-titulo" class="t-card">Orbi Studio Pro</p>
+            <p id="plano-detalhe" class="t-sub" style="margin-top:2px">--</p>
           </div>
-          <span id="badge-status-assinatura" class="chip chip-static chip-success">Em dia</span>
+          <span id="plano-badge" class="chip chip-static chip-success">Ativo</span>
         </div>
-        <button class="btn btn-secondary btn-block" style="margin-top:14px" onclick="abrirModalAssinatura()">Renovar assinatura</button>
+        <ul class="plano-inclui">
+          <li data-pro><i data-lucide="check"></i><span>Orbi no WhatsApp: agenda por mensagem e áudio, resumo do dia e confirmações</span></li>
+          <li data-pro><i data-lucide="check"></i><span>Financeiro do mês</span></li>
+          <li><i data-lucide="check"></i><span>Agenda, Serviços e sincronização com Google e iPhone</span></li>
+        </ul>
+        <button id="plano-botao" class="btn btn-primary btn-block" style="margin-top:16px" onclick="acaoBotaoPlano()">Assinar</button>
+        <p id="plano-nota" class="plano-nota hidden"></p>
       </div>
 
       <div class="sec-head"><h2>Aparência</h2></div>
@@ -1051,13 +1111,16 @@
         <button id="btn-ass-cartao" aria-pressed="false" onclick="alternarMetodoAssinatura('cartao')">Cartão</button>
       </div>
       <div id="area-ass-pix" style="margin-top:16px">
-        <p class="t-body" style="color:var(--ink-2)">Libera 30 dias de acesso assim que o Pix é confirmado.</p>
-        <button class="btn btn-primary btn-block" style="margin-top:14px" onclick="pagarPixMercadoPago()">Pagar com Pix <i data-lucide="external-link"></i></button>
+        <p class="t-body" style="color:var(--ink-2)">Você paga uma vez e usa por 30 dias. Sem renovação automática: avisamos antes de vencer.</p>
+        <button id="btn-checkout-pix" class="btn btn-primary btn-block" style="margin-top:14px" onclick="iniciarCheckout('pix')">Pagar 30 dias com Pix <i data-lucide="external-link"></i></button>
       </div>
       <div id="area-ass-cartao" class="hidden" style="margin-top:16px">
-        <p class="t-body" style="color:var(--ink-2)">Renova sozinho todo mês no cartão. Você pode cancelar quando quiser.</p>
-        <button class="btn btn-primary btn-block" style="margin-top:14px" onclick="assinarCartaoMercadoPago()">Assinar no cartão <i data-lucide="external-link"></i></button>
+        <p class="t-body" style="color:var(--ink-2)">Renova sozinho todo mês no cartão. Dá para cancelar quando quiser no Mercado Pago.</p>
+        <label class="t-label" for="input-email-mp" style="display:block;margin-top:14px">E-mail da sua conta Mercado Pago</label>
+        <input id="input-email-mp" class="input" type="email" inputmode="email" autocomplete="email" placeholder="voce@email.com" style="margin-top:6px">
+        <button id="btn-checkout-cartao" class="btn btn-primary btn-block" style="margin-top:14px" onclick="iniciarCheckout('cartao')">Assinar no cartão <i data-lucide="external-link"></i></button>
       </div>
+      <p id="ass-nota-dias" class="plano-nota hidden" style="text-align:center"></p>
     </div>
   </div>
 
@@ -1077,17 +1140,15 @@
     </div>
   </div>
 
-  <!-- ================= MODAL: ASSINATURA VENCIDA ================= -->
-  <div id="modal-paywall" class="modal hidden" role="alertdialog" aria-modal="true" aria-labelledby="titulo-paywall" style="z-index:55">
+  <!-- ================= MODAL: PRO ATIVADO ================= -->
+  <div id="modal-pro-ativo" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="titulo-pro-ativo">
     <div class="sheet" style="text-align:center">
-      <svg aria-hidden="true" style="width:64px;height:64px;border-radius:18px;margin:4px auto 14px;display:block"><use href="#logo-orbi"/></svg>
-      <h3 id="titulo-paywall" class="t-section">Renove para continuar</h3>
-      <p class="t-body" style="color:var(--ink-2);margin-top:8px">Com a assinatura em dia, a Orbi continua agendando pelo WhatsApp e sua agenda segue sincronizada.</p>
-      <p class="t-value num" style="margin-top:16px">R$ 49,90<span class="t-sub" style="font-size:16px;font-weight:500"> /mês</span></p>
-      <div style="display:grid;gap:10px;margin-top:18px">
-        <button class="btn btn-primary btn-block" onclick="pagarPixMercadoPago()">Pagar com Pix (30 dias)</button>
-        <button class="btn btn-secondary btn-block" onclick="assinarCartaoMercadoPago()">Assinar no cartão</button>
-        <button class="btn btn-block" style="background:none;color:var(--muted);min-height:40px" onclick="togglePaywall(false)">Agora não</button>
+      <div class="pro-selo"><i data-lucide="sparkles"></i></div>
+      <h3 id="titulo-pro-ativo" class="t-section">Pro ativado</h3>
+      <p id="pro-ativo-txt" class="t-body" style="color:var(--ink-2);margin-top:8px">A Orbi volta a atender no WhatsApp e o Financeiro está liberado.</p>
+      <div style="display:grid;gap:10px;margin-top:20px">
+        <button class="btn btn-primary btn-block" onclick="fecharModal('modal-pro-ativo'); switchTab('caixa')">Ver Financeiro</button>
+        <button class="btn btn-block" style="background:none;color:var(--muted);min-height:40px" onclick="fecharModal('modal-pro-ativo')">Fechar</button>
       </div>
     </div>
   </div>
@@ -1099,8 +1160,7 @@
     const SUPABASE_URL = "https://aaiwbrddckshuiuwziqw.supabase.co";
     const SUPABASE_KEY = "sb_publishable_hVZp48vBwDFVnw7mSjQi9g_O1w5DSgl";
     const NUMERO_ORBI = "5511927430042";
-    const LINK_MP_ASSINATURA_CARTAO = "https://mpago.la/2oWzM4T";
-    const LINK_MP_PAGAMENTO_PIX = "https://link.mercadopago.com.br/assinaturaorbipro";
+    const LINK_MP_MINHAS_ASSINATURAS = "https://www.mercadopago.com.br/subscriptions";
     const EMAIL_MOTOR_CENTRAL = "celcompany.secundario@gmail.com";
 
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -1201,11 +1261,11 @@
     }
     document.addEventListener("click", e => {
       const alvo = e.target;
-      if (alvo.classList && alvo.classList.contains("modal") && alvo.id !== "modal-paywall") fecharModal(alvo.id);
+      if (alvo.classList && alvo.classList.contains("modal")) fecharModal(alvo.id);
     });
     document.addEventListener("keydown", e => {
       if (e.key !== "Escape") return;
-      const abertos = [...document.querySelectorAll(".modal:not(.hidden)")].filter(m => m.id !== "modal-paywall");
+      const abertos = [...document.querySelectorAll(".modal:not(.hidden)")];
       if (abertos.length) fecharModal(abertos[abertos.length - 1].id);
     });
 
@@ -1303,10 +1363,13 @@
       tarefas = carregarTarefas(user.id);
 
       perfilAtual = await obterPerfil(user);
+      await carregarPlano();
 
       preencherConta();
       await Promise.all([carregarServicos(), carregarAgendasExternas(), carregarAgendamentosSupabase(true, true)]);
       if (!perfilAtual?.onboarding_concluido_em) abrirOnboarding();
+      else if (lerLocal("orbi_abrir_assinatura")) { gravarLocal("orbi_abrir_assinatura", ""); abrirModalAssinatura(); }
+      retomarEsperaPagamento();
     }
 
     // O perfil é criado pelo banco no cadastro (código ORBI de 6 caracteres e assinatura de teste).
@@ -1322,7 +1385,9 @@
     async function recarregarPerfil() {
       if (!usuarioAuth) return;
       const { data } = await supabaseClient.from("profiles").select("*").eq("id", usuarioAuth.id).maybeSingle();
-      if (data) { perfilAtual = data; preencherConta(); }
+      if (data) { perfilAtual = data; }
+      await carregarPlano();
+      preencherConta();
     }
 
     function preencherConta() {
@@ -1350,14 +1415,7 @@
       document.getElementById("onb-codigo").textContent = perfilAtual?.codigo_orbi || "ORBI-0000";
       document.getElementById("input-email-calendar").value = emailCal;
 
-      const badge = document.getElementById("badge-status-assinatura");
-      if (perfilAtual?.assinatura_vencimento) {
-        document.getElementById("txt-vencimento-assinatura").textContent = formatarDataBR(perfilAtual.assinatura_vencimento);
-        const vencida = perfilAtual.assinatura_vencimento < hojeISO() || perfilAtual.assinatura_status === "vencido";
-        badge.textContent = vencida ? "Vencida" : "Em dia";
-        badge.className = "chip chip-static " + (vencida ? "chip-warn" : "chip-success");
-        if (vencida) togglePaywall(true);
-      }
+      aplicarPlano();
     }
 
     async function fazerLogout() {
@@ -1370,6 +1428,9 @@
       servicosCarregados = false;
       assinaturaDados = "";
       agendasExternas = [];
+      planoAtual = null;
+      pararEsperaPagamento();
+      aplicarPlano();
       pararDeteccaoOrbi();
       document.getElementById("onboarding").classList.add("hidden");
       switchTab("agenda");
@@ -1432,7 +1493,156 @@
     // ============================================================================
     // ASSINATURA (Mercado Pago)
     // ============================================================================
-    function abrirModalAssinatura() { abrirModal("modal-assinatura"); }
+    // Plano: teste de 30 dias → Pro (Pix 30 dias ou cartão mensal) → gratuito.
+    // Pro = vencimento + 3 dias de carência. A regra mora no banco (meu_plano); aqui só desenha.
+    let planoAtual = null;
+    let esperaPagamento = null;
+
+    function calcularPlanoLocal(p) {
+      if (!p) return null;
+      const ate = p.assinatura_vencimento || null;
+      const hoje = hojeISO();
+      const dias = ate ? Math.round((new Date(ate + "T12:00:00") - new Date(hoje + "T12:00:00")) / 86400000) : -999;
+      return { tipo: p.plano_tipo || "teste", ate, pro: dias >= -3, em_carencia: dias < 0 && dias >= -3, dias_restantes: dias,
+               renovacao_automatica: p.mp_preapproval_status === "authorized" };
+    }
+    async function carregarPlano() {
+      if (!usuarioAuth) { planoAtual = null; return null; }
+      const { data, error } = await supabaseClient.rpc("meu_plano");
+      planoAtual = (!error && data && typeof data === "object") ? data : calcularPlanoLocal(perfilAtual);
+      return planoAtual;
+    }
+    function ehPro() { return !planoAtual || planoAtual.pro !== false; }
+    function somarDias(iso, n) { const d = new Date(iso + "T12:00:00"); d.setDate(d.getDate() + n); return toISO(d); }
+    function dataCurta(iso) { const p = String(iso || "").split("-"); return p.length === 3 ? `${p[2]}/${p[1]}` : "--"; }
+    function emDias(n) { return n === 0 ? "hoje" : n === 1 ? "amanhã" : `em ${n} dias`; }
+
+    function aplicarPlano() {
+      const pl = planoAtual;
+      const pro = ehPro();
+
+      // Financeiro: prévia desfocada + convite
+      const tab = document.getElementById("tab-caixa");
+      tab.classList.toggle("trancado", !pro);
+      document.getElementById("caixa-conteudo").classList.toggle("tranca-previa", !pro);
+      document.getElementById("caixa-conteudo").setAttribute("aria-hidden", String(!pro));
+      document.getElementById("caixa-tranca").classList.toggle("hidden", pro);
+      document.getElementById("select-mes-caixa").classList.toggle("hidden", !pro);
+
+      // WhatsApp na Conta
+      if (perfilAtual?.whatsapp && !pro) {
+        document.getElementById("txt-whats-conectado").textContent = `Pausada no plano gratuito · ${formatarFone(perfilAtual.whatsapp)}`;
+      }
+
+      desenharFaixaPlano();
+      desenharCartaoPlano();
+      icones();
+    }
+
+    function textoFaixaPlano() {
+      const pl = planoAtual;
+      if (!pl || !usuarioAuth) return null;
+      const d = Number(pl.dias_restantes);
+      if (!pl.pro) return { chave: "gratis", alerta: true, icone: "pause",
+        html: "<b>Orbi pausada.</b> Sua agenda segue liberada." };
+      if (pl.em_carencia) return { chave: "carencia:" + pl.ate, alerta: true, icone: "clock-alert",
+        html: `<b>Plano vencido.</b> Orbi ativa até ${dataCurta(somarDias(pl.ate, 3))}.` };
+      if (pl.tipo === "teste" && d <= 7) return { chave: "teste:" + pl.ate + ":" + d, alerta: d <= 1, icone: "sparkles",
+        html: d === 0 ? "<b>Seu teste acaba hoje.</b>" : `<b>Seu teste acaba ${emDias(d)}.</b>` };
+      if (pl.tipo === "pix" && d <= 3) return { chave: "pix:" + pl.ate + ":" + d, alerta: d <= 1, icone: "calendar-clock",
+        html: `<b>Seu Pro vence ${emDias(d)}.</b>` };
+      if (pl.tipo === "cartao" && !pl.renovacao_automatica && d <= 3) return { chave: "cartao:" + pl.ate + ":" + d, alerta: true, icone: "credit-card",
+        html: `<b>Cartão sem renovação.</b> Pro até ${dataCurta(pl.ate)}.` };
+      return null;
+    }
+    function desenharFaixaPlano() {
+      const el = document.getElementById("plano-faixa");
+      const f = textoFaixaPlano();
+      const dispensada = f && lerLocal("orbi_faixa_plano") === f.chave + ":" + hojeISO();
+      if (!f || dispensada) { el.classList.add("hidden"); return; }
+      el.classList.remove("hidden");
+      el.classList.toggle("alerta", !!f.alerta);
+      el.dataset.chave = f.chave;
+      document.getElementById("plano-faixa-txt").innerHTML = f.html;
+      const ic = el.querySelector(".pf-ic");
+      ic.innerHTML = `<i data-lucide="${f.icone}"></i>`;
+    }
+    function dispensarFaixaPlano() {
+      const el = document.getElementById("plano-faixa");
+      gravarLocal("orbi_faixa_plano", (el.dataset.chave || "") + ":" + hojeISO());
+      el.classList.add("hidden");
+    }
+
+    function desenharCartaoPlano() {
+      const pl = planoAtual || {};
+      const d = Number(pl.dias_restantes);
+      const titulo = document.getElementById("plano-titulo");
+      const det = document.getElementById("plano-detalhe");
+      const badge = document.getElementById("plano-badge");
+      const botao = document.getElementById("plano-botao");
+      const nota = document.getElementById("plano-nota");
+      const tag = (txt, cls) => { badge.textContent = txt; badge.className = "chip chip-static " + cls; };
+      let notaTxt = "";
+      botao.dataset.acao = "assinar";
+      botao.className = "btn btn-primary btn-block";
+
+      if (pl.pro === false) {
+        titulo.textContent = "Plano gratuito";
+        det.textContent = "Agenda, Serviços e sincronização continuam liberados";
+        tag("Gratuito", "chip-soft");
+        botao.textContent = "Assinar o Pro · R$ 49,90/mês";
+      } else if (pl.em_carencia) {
+        titulo.textContent = "Orbi Studio Pro";
+        det.textContent = `Venceu em ${formatarDataBR(pl.ate)} · Orbi ativa até ${formatarDataBR(somarDias(pl.ate, 3))}`;
+        tag("Venceu", "chip-warn");
+        botao.textContent = "Renovar agora";
+      } else if (pl.tipo === "teste") {
+        titulo.textContent = "Teste grátis do Pro";
+        det.textContent = d === 0 ? "Termina hoje" : `Até ${formatarDataBR(pl.ate)} · ${d === 1 ? "falta 1 dia" : `faltam ${d} dias`}`;
+        tag("Teste", "chip-soft");
+        botao.textContent = "Assinar agora";
+        notaTxt = "Assinando agora, os dias que faltam do teste continuam valendo.";
+      } else if (pl.tipo === "cartao" && pl.renovacao_automatica) {
+        titulo.textContent = "Orbi Studio Pro";
+        det.textContent = `Cartão · renova sozinho · pago até ${formatarDataBR(pl.ate)}`;
+        tag("Ativo", "chip-success");
+        botao.textContent = "Gerenciar no Mercado Pago";
+        botao.dataset.acao = "gerenciar";
+        botao.className = "btn btn-secondary btn-block";
+      } else {
+        titulo.textContent = "Orbi Studio Pro";
+        det.textContent = pl.tipo === "cartao"
+          ? `Renovação automática desligada · Pro até ${formatarDataBR(pl.ate)}`
+          : `Pix · Pro até ${formatarDataBR(pl.ate)}`;
+        tag(d <= 3 ? `Vence ${emDias(d)}` : "Ativo", d <= 3 ? "chip-warn" : "chip-success");
+        botao.textContent = pl.tipo === "cartao" ? "Assinar de novo" : "Renovar ou assinar no cartão";
+        botao.className = "btn " + (d <= 3 ? "btn-primary" : "btn-secondary") + " btn-block";
+        if (pl.tipo === "pix") notaTxt = "Renovando antes, os 30 dias novos começam quando estes acabarem.";
+      }
+      document.querySelectorAll(".plano-inclui li[data-pro]").forEach(li => {
+        li.classList.toggle("off", pl.pro === false);
+        li.querySelector("svg, i").outerHTML = `<i data-lucide="${pl.pro === false ? "lock" : "check"}"></i>`;
+      });
+      nota.textContent = notaTxt;
+      nota.classList.toggle("hidden", !notaTxt);
+    }
+    function acaoBotaoPlano() {
+      if (document.getElementById("plano-botao").dataset.acao === "gerenciar") window.open(LINK_MP_MINHAS_ASSINATURAS, "_blank", "noopener");
+      else abrirModalAssinatura();
+    }
+
+    function abrirModalAssinatura() {
+      const pl = planoAtual;
+      alternarMetodoAssinatura("pix");
+      const em = document.getElementById("input-email-mp");
+      if (!em.value) em.value = perfilAtual?.mp_email || usuarioAuth?.email || "";
+      const nota = document.getElementById("ass-nota-dias");
+      const d = Number(pl?.dias_restantes);
+      const txt = pl?.pro && d > 0 ? `Seus ${d === 1 ? "último dia continua" : d + " dias restantes continuam"} valendo: os 30 dias novos entram depois.` : "";
+      nota.textContent = txt;
+      nota.classList.toggle("hidden", !txt);
+      abrirModal("modal-assinatura");
+    }
     function fecharModalAssinatura() { fecharModal("modal-assinatura"); }
     function alternarMetodoAssinatura(m) {
       const pix = m === "pix";
@@ -1441,10 +1651,103 @@
       document.getElementById("area-ass-pix").classList.toggle("hidden", !pix);
       document.getElementById("area-ass-cartao").classList.toggle("hidden", pix);
     }
-    function assinarCartaoMercadoPago() { window.open(LINK_MP_ASSINATURA_CARTAO, "_blank"); }
-    function pagarPixMercadoPago() { window.open(LINK_MP_PAGAMENTO_PIX, "_blank"); }
-    function togglePaywall(mostrar) {
-      if (mostrar) abrirModal("modal-paywall"); else fecharModal("modal-paywall");
+
+    // Pede ao n8n um link do Mercado Pago só desta profissional (external_reference = id dela).
+    async function iniciarCheckout(tipo) {
+      const btn = document.getElementById(tipo === "cartao" ? "btn-checkout-cartao" : "btn-checkout-pix");
+      const original = btn.innerHTML;
+      const emailMp = document.getElementById("input-email-mp").value.trim();
+      if (tipo === "cartao" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailMp)) { toast("Confira o e-mail da sua conta Mercado Pago."); return; }
+      // Abre a aba já no toque (Safari bloqueia janelas abertas depois de um await).
+      let janela = null;
+      try { janela = window.open("", "_blank"); } catch (e) { janela = null; }
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader-circle" class="girando"></i>Abrindo o Mercado Pago…`;
+      icones();
+      let r = null;
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        const ctrl = new AbortController();
+        const t = setTimeout(() => ctrl.abort(), 20000);
+        const resp = await fetch("/api/assinar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token || ""}` },
+          body: JSON.stringify({ tipo, email_mp: tipo === "cartao" ? emailMp : "", origem: location.origin }),
+          signal: ctrl.signal
+        });
+        clearTimeout(t);
+        r = await resp.json().catch(() => null);
+      } catch (e) { r = null; }
+      btn.disabled = false;
+      btn.innerHTML = original;
+      icones();
+      if (!r || !r.ok || !/^https:\/\/([a-z0-9-]+\.)*mercadopago\.com(\.br)?\//i.test(String(r.url || ""))) {
+        if (janela) janela.close();
+        toast(r && r.erro === "sessao_invalida" ? "Sua sessão expirou. Entre de novo." : "Não deu para abrir o pagamento agora. Tente em instantes.");
+        return;
+      }
+      iniciarEsperaPagamento();
+      fecharModal("modal-assinatura");
+      if (janela && !janela.closed) janela.location.href = r.url;
+      else location.href = r.url;
+    }
+
+    // Depois do pagamento: confere o plano a cada 5 s por até 15 min (e quando o app volta à tela).
+    function iniciarEsperaPagamento() {
+      esperaPagamento = { ate: planoAtual?.ate || "", tipo: planoAtual?.tipo || "", status: planoAtual?.renovacao_automatica || false, desde: Date.now() };
+      gravarLocal("orbi_espera_pagamento", JSON.stringify(esperaPagamento));
+      agendarConferenciaPagamento();
+    }
+    function retomarEsperaPagamento() {
+      try { esperaPagamento = JSON.parse(lerLocal("orbi_espera_pagamento") || "null"); } catch (e) { esperaPagamento = null; }
+      if (esperaPagamento && Date.now() - esperaPagamento.desde > 15 * 60000) pararEsperaPagamento();
+      else if (esperaPagamento) { conferirPagamento(); agendarConferenciaPagamento(); }
+    }
+    let timerPagamento = null;
+    function agendarConferenciaPagamento() {
+      clearInterval(timerPagamento);
+      timerPagamento = setInterval(() => { if (!document.hidden) conferirPagamento(); }, 5000);
+    }
+    function pararEsperaPagamento() {
+      clearInterval(timerPagamento);
+      timerPagamento = null;
+      esperaPagamento = null;
+      gravarLocal("orbi_espera_pagamento", "");
+    }
+    async function conferirPagamento() {
+      if (!esperaPagamento || !usuarioAuth) return;
+      if (Date.now() - esperaPagamento.desde > 15 * 60000) { pararEsperaPagamento(); return; }
+      const desde = new Date(esperaPagamento.desde - (esperaPagamento.volta || 2) * 60000).toISOString();
+      const [{ data: pags }, pl] = await Promise.all([
+        supabaseClient.from("pagamentos").select("id, acesso_ate").gte("criado_em", desde).not("acesso_ate", "is", null).limit(1),
+        carregarPlano()
+      ]);
+      if (!pl) return;
+      const pagou = Array.isArray(pags) && pags.length > 0;
+      const ligouCartao = pl.renovacao_automatica && !esperaPagamento.status;
+      if (pagou || ligouCartao) {
+        pararEsperaPagamento();
+        await recarregarPerfil();
+        document.getElementById("pro-ativo-txt").textContent = pagou
+          ? `Pagamento confirmado. A Orbi está ativa no WhatsApp e o Financeiro liberado até ${formatarDataBR(pl.ate)}.`
+          : `Assinatura no cartão confirmada. A primeira cobrança cai em instantes e o Pro fica ativo até ${formatarDataBR(pl.ate)}.`;
+        abrirModal("modal-pro-ativo");
+      }
+    }
+
+    // Volta do Mercado Pago (?pagamento=ok|pendente|erro|assinatura) e link da Orbi (?assinar=1)
+    function lerRetornoDaUrl() {
+      const q = new URLSearchParams(location.search);
+      const pg = q.get("pagamento");
+      const assinar = q.get("assinar");
+      if (!pg && !assinar) return;
+      history.replaceState(null, "", location.pathname + location.hash);
+      if (assinar) gravarLocal("orbi_abrir_assinatura", "1");
+      if (pg === "erro") { setTimeout(() => toast("O pagamento não foi concluído. Você pode tentar de novo quando quiser."), 600); return; }
+      if (pg) {
+        if (!lerLocal("orbi_espera_pagamento")) gravarLocal("orbi_espera_pagamento", JSON.stringify({ ate: "", tipo: "", status: pg !== "assinatura", desde: Date.now(), volta: 30 }));
+        setTimeout(() => toast(pg === "pendente" ? "Pagamento em análise. Avisamos aqui quando confirmar." : "Confirmando seu pagamento…"), 600);
+      }
     }
 
     // ============================================================================
@@ -2553,6 +2856,7 @@
     // ============================================================================
     window.addEventListener("DOMContentLoaded", async () => {
       aplicarTema();
+      lerRetornoDaUrl();
       mostrarAuth(lerLocal("orbi_ja_entrou") ? "login" : "boasvindas");
       renderCalendario();
       renderDia();
@@ -2567,6 +2871,7 @@
         if (document.hidden || !usuarioAuth) return;
         carregarAgendamentosSupabase(true);
         recarregarPerfil();
+        if (esperaPagamento) conferirPagamento();
       });
     });
   </script>
